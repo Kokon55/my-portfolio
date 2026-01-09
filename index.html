@@ -105,24 +105,30 @@
             line-height: 1.3;
         }
         
+        /* 修正箇所: タイトルを確実に中央配置 */
+        .section-title-wrapper {
+            text-align: center;
+            width: 100%;
+            margin-bottom: 3rem;
+        }
+
         .section-title {
             font-size: 2rem;
-            text-align: center;
-            margin-bottom: 3rem;
             color: var(--primary);
-            position: relative;
             display: inline-block;
-            left: 50%;
-            transform: translateX(-50%);
+            position: relative;
+            padding-bottom: 0.5rem;
         }
         
         .section-title::after {
             content: '';
-            display: block;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
             width: 60px;
             height: 4px;
             background: var(--accent);
-            margin: 0.5rem auto 0;
             border-radius: 2px;
         }
 
@@ -132,18 +138,6 @@
             max-width: var(--container-width);
             margin: 0 auto;
             padding: 0 1rem;
-        }
-
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
         }
 
         /* Animations */
@@ -210,14 +204,6 @@
             transition: background 0.2s;
             border: 1px solid var(--border);
         }
-        .theme-toggle:hover {
-            background: rgba(128,128,128,0.1);
-        }
-        .theme-icon {
-            width: 18px;
-            height: 18px;
-            fill: currentColor;
-        }
 
         /* Mobile Menu */
         .hamburger {
@@ -239,40 +225,6 @@
             border-radius: 2px;
             transition: transform 0.3s, opacity 0.3s;
         }
-        .hamburger[aria-expanded="true"] span:nth-child(1) {
-            transform: translateY(9px) rotate(45deg);
-        }
-        .hamburger[aria-expanded="true"] span:nth-child(2) {
-            opacity: 0;
-        }
-        .hamburger[aria-expanded="true"] span:nth-child(3) {
-            transform: translateY(-9px) rotate(-45deg);
-        }
-
-        .mobile-nav {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 80%;
-            max-width: 300px;
-            height: 100vh;
-            background: var(--bg-surface);
-            box-shadow: -4px 0 10px rgba(0,0,0,0.1);
-            z-index: 1001;
-            transition: right 0.3s ease;
-            padding: 80px 2rem 2rem;
-            display: flex;
-            flex-direction: column;
-        }
-        .mobile-nav[aria-hidden="false"] {
-            right: 0;
-        }
-        .mobile-nav-link {
-            display: block;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--border);
-            font-weight: 500;
-        }
 
         /* Buttons */
         .btn {
@@ -285,25 +237,13 @@
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
             text-decoration: none;
-            white-space: nowrap;
         }
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
-        .btn-primary {
-            background: var(--primary);
-            color: #fff;
-        }
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-        [data-theme="dark"] .btn-outline {
-            border-color: var(--text-main);
-            color: var(--text-main);
-        }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
 
         /* Hero Section */
         #hero {
@@ -334,20 +274,9 @@
             font-size: 1.1rem;
             margin-bottom: 2rem;
             color: var(--text-muted);
-            max-width: 600px;
-        }
-        .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
         }
 
-        .value-props {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            justify-content: center;
-        }
+        .value-props { display: flex; flex-direction: column; gap: 1rem; }
         .value-card {
             background: var(--bg-surface);
             padding: 1.25rem;
@@ -355,61 +284,32 @@
             box-shadow: var(--shadow);
             border-left: 4px solid var(--accent);
         }
-        .value-card p {
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
 
-        /* About Section & Profile Fix */
-        .about-grid {
-            display: grid;
-            gap: 3rem;
-            grid-template-columns: 1fr;
-            align-items: center;
-        }
-        .profile-area {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        /* About & Profile (張り手ポーズ調整済み) */
+        .about-grid { display: grid; gap: 3rem; grid-template-columns: 1fr; align-items: center; }
+        .profile-area { display: flex; justify-content: center; }
         .profile-img-container {
-            width: 220px; /* 少しサイズアップして視認性向上 */
+            width: 220px;
             height: 220px;
             border-radius: 50%;
             overflow: hidden;
             border: 6px solid var(--bg-surface);
             box-shadow: var(--shadow);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: var(--bg-surface-alt);
         }
         .profile-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            /* 画像内の人物が右側に寄っている（張り手ポーズ）ため、
-               表示位置を右側(80%)に寄せることで顔と腕を見切れにくくします */
-            object-position: 80% center; 
-            transition: transform 0.3s ease;
-        }
-        .profile-img:hover {
-            transform: scale(1.05); /* ホバー時に少しズーム */
+            object-position: 80% center; /* 張り手ポーズの人物を右寄りに配置して中央に収める */
         }
 
-        .badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-        }
+        .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; }
         .badge {
             font-size: 0.75rem;
             background: var(--bg-surface-alt);
             border: 1px solid var(--border);
             padding: 0.25rem 0.75rem;
             border-radius: 99px;
-            font-weight: 500;
         }
 
         .strength-cards {
@@ -424,20 +324,9 @@
             border-radius: var(--radius);
             box-shadow: var(--shadow);
         }
-        .strength-card h3 {
-            color: var(--accent);
-            margin-bottom: 1rem;
-            font-size: 1.15rem;
-        }
+        .strength-card h3 { color: var(--accent); margin-bottom: 1rem; }
 
-        /* Works Section */
-        .works-notice {
-            text-align: center;
-            margin-bottom: 2.5rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
+        /* Works */
         .works-grid {
             display: grid;
             gap: 2rem;
@@ -448,51 +337,13 @@
             border-radius: var(--radius);
             overflow: hidden;
             box-shadow: var(--shadow);
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
+            transition: transform 0.3s;
         }
-        .work-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.12);
-        }
-        .work-thumb {
-            height: 220px;
-            background-color: var(--bg-surface-alt);
-            overflow: hidden;
-        }
-        .work-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-        .work-card:hover .work-thumb img {
-            transform: scale(1.05);
-        }
-        .work-content {
-            padding: 1.5rem;
-        }
-        .work-role {
-            font-size: 0.75rem;
-            color: var(--accent);
-            letter-spacing: 0.1em;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-        .work-title {
-            font-size: 1.25rem;
-            margin-bottom: 0.75rem;
-        }
-        .work-excerpt {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
+        .work-card:hover { transform: translateY(-8px); }
+        .work-thumb { height: 200px; background: var(--bg-surface-alt); }
+        .work-content { padding: 1.5rem; }
 
-        /* Testimonials Section Custom Labels */
+        /* Testimonials */
         .testimonial-grid {
             display: grid;
             gap: 2rem;
@@ -500,141 +351,42 @@
         }
         .testimonial-card {
             background: var(--bg-surface);
-            padding: 2.5rem 2rem;
+            padding: 2rem;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            position: relative;
-        }
-        .testimonial-label {
-            position: absolute;
-            top: -0.75rem;
-            left: 1.5rem;
-            background: var(--primary);
-            color: #fff;
-            font-size: 0.7rem;
-            padding: 0.3rem 0.8rem;
-            border-radius: 4px;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-        .testimonial-text {
-            font-size: 1.1rem;
-            font-weight: 500;
-            line-height: 1.8;
         }
 
-        /* Contact & Forms */
+        /* Contact */
         .contact-form {
             max-width: 600px;
             margin: 0 auto;
             background: var(--bg-surface);
-            padding: 3rem 2rem;
+            padding: 2.5rem;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
         }
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        .form-input, .form-select, .form-textarea {
+        .form-group { margin-bottom: 1.5rem; }
+        .form-input, .form-textarea {
             width: 100%;
-            padding: 0.9rem;
+            padding: 0.8rem;
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 8px;
             background: var(--bg-surface-alt);
-            color: var(--text-main);
-            font-size: 1rem;
-        }
-        .contact-info {
-            text-align: center;
-            margin-top: 3rem;
-        }
-        .contact-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-top: 1rem;
-        }
-        .contact-links a {
-            font-weight: 600;
-            color: var(--primary);
-            border-bottom: 2px solid var(--accent);
         }
 
         /* Footer */
-        footer {
-            background: var(--bg-surface-alt);
-            padding: 4rem 0;
-            border-top: 1px solid var(--border);
-        }
-        .footer-inner {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 2rem;
-        }
+        footer { padding: 3rem 0; background: var(--bg-surface-alt); border-top: 1px solid var(--border); text-align: center; }
 
         /* Responsive */
         @media (min-width: 768px) {
-            .hero-content {
-                grid-template-columns: 1.2fr 0.8fr;
-                align-items: center;
-            }
-            .about-grid {
-                grid-template-columns: 240px 1fr;
-            }
-            .nav-desktop {
-                display: flex;
-                gap: 1.5rem;
-                align-items: center;
-            }
-            .nav-link {
-                font-weight: 600;
-                font-size: 0.9rem;
-                transition: color 0.2s;
-            }
-            .nav-link:hover {
-                color: var(--accent);
-            }
-            .hamburger, .mobile-nav {
-                display: none;
-            }
+            .hero-content { grid-template-columns: 1.2fr 0.8fr; align-items: center; }
+            .about-grid { grid-template-columns: 240px 1fr; }
+            .nav-desktop { display: flex; gap: 1.5rem; align-items: center; }
+            .hamburger { display: none; }
         }
 
-        /* Utils */
         section { padding: 6rem 0; }
         .section-bg { background-color: var(--bg-surface-alt); }
-
-        /* Modal & Toast styles */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 2000;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s;
-        }
-        .modal-overlay[aria-hidden="false"] { opacity: 1; pointer-events: auto; }
-        .modal-container {
-            background: var(--bg-surface); width: 90%; max-width: 700px;
-            max-height: 90vh; border-radius: var(--radius); padding: 2.5rem;
-            overflow-y: auto; position: relative;
-        }
-        .modal-close {
-            position: absolute; top: 1rem; right: 1rem; font-size: 2rem;
-            cursor: pointer; background: none; color: var(--text-muted);
-        }
-        .toast {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: var(--primary); color: #fff; padding: 1rem 2rem;
-            border-radius: 12px; z-index: 3000; transition: transform 0.4s;
-        }
-        .toast.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
@@ -642,304 +394,163 @@
     <header>
         <div class="container header-inner">
             <a href="#" class="logo">Taro Yamada</a>
-            
             <nav class="nav-desktop">
-                <a href="#about" class="nav-link">About</a>
-                <a href="#services" class="nav-link">Services</a>
-                <a href="#works" class="nav-link">Works</a>
-                <a href="#process" class="nav-link">Process</a>
-                <a href="#contact" class="btn btn-primary" style="padding: 0.5rem 1.25rem; font-size: 0.85rem;">Contact</a>
-                <button class="theme-toggle" id="theme-toggle" aria-label="テーマ切り替え">
-                    <svg class="theme-icon" viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1z"/></svg>
-                    <span id="theme-text">Light</span>
-                </button>
+                <a href="#about">About</a>
+                <a href="#services">Services</a>
+                <a href="#works">Works</a>
+                <a href="#contact" class="btn btn-primary" style="padding: 0.4rem 1rem;">Contact</a>
             </nav>
-
-            <button class="hamburger" id="hamburger" aria-label="メニュー" aria-expanded="false">
-                <span></span><span></span><span></span>
-            </button>
+            <button class="hamburger"><span></span><span></span><span></span></button>
         </div>
     </header>
 
-    <div class="mobile-nav" id="mobile-nav" aria-hidden="true">
-        <a href="#about" class="mobile-nav-link">About</a>
-        <a href="#services" class="mobile-nav-link">Services</a>
-        <a href="#works" class="mobile-nav-link">Works</a>
-        <a href="#process" class="mobile-nav-link">Process</a>
-        <a href="#contact" class="mobile-nav-link">Contact</a>
-        <button class="theme-toggle" id="theme-toggle-mobile" style="margin-top: 2rem; width: 100%;">
-            <span>Switch Theme</span>
-        </button>
-    </div>
-
     <main>
+        <!-- Hero Section -->
         <section id="hero">
             <div class="container hero-content">
                 <div class="hero-text fade-in-up">
                     <h1>Colors Logic,<br>Designs Magic</h1>
-                    <p class="subcopy">色彩検定1級の知識と確かなコーディング技術で、企業の思いを「伝わる」形に。</p>
+                    <p class="subcopy">色彩検定1級の知識で、企業の思いを形にするWebデザイナー。</p>
                     <div class="hero-buttons">
-                        <a href="#works" class="btn btn-primary">制作実績を見る</a>
-                        <a href="#contact" class="btn btn-outline">相談する</a>
+                        <a href="#works" class="btn btn-primary">制作実績</a>
+                        <a href="#contact" class="btn btn-outline" style="margin-left: 0.5rem;">相談する</a>
                     </div>
                 </div>
                 <div class="value-props fade-in-up">
-                    <div class="value-card"><p>配色設計：意図が伝わる色のロジック</p></div>
-                    <div class="value-card"><p>UI設計：迷わない情報設計</p></div>
-                    <div class="value-card"><p>実装品質：軽量で保守しやすいコード</p></div>
+                    <div class="value-card"><p>配色：色のロジックで伝える</p></div>
+                    <div class="value-card"><p>設計：迷わせない情報構造</p></div>
                 </div>
             </div>
         </section>
 
+        <!-- About Section -->
         <section id="about">
             <div class="container">
-                <h2 class="section-title fade-in-up">Who I Am</h2>
+                <div class="section-title-wrapper fade-in-up">
+                    <h2 class="section-title">Who I Am</h2>
+                </div>
                 <div class="about-grid fade-in-up">
                     <div class="profile-area">
                         <div class="profile-img-container">
-                            <!-- 
-                              修正ポイント:
-                              - object-fit: cover で全体をカバー
-                              - object-position: 80% center で右寄りの顔と「張り手ポーズ」を円内に収める
-                            -->
-                            <img src="/assets/profile.png" alt="山田太郎 プロフィール" class="profile-img" onerror="this.src='https://via.placeholder.com/220x220?text=Taro+Yamada'">
+                            <!-- 張り手ポーズに合わせて object-position を設定 -->
+                            <img src="/assets/profile.png" alt="山田太郎" class="profile-img" onerror="this.src='https://via.placeholder.com/220x220?text=Profile'">
                         </div>
                     </div>
                     <div>
-                        <p>はじめまして、Webデザイナーの山田太郎です。<br>IT企業でWebデザイナーをしています。<br>「色の設計と実装の両面から、伝えたい価値が届くデザインを形にします。」</p>
+                        <p>Webデザイナーの山田太郎です。IT企業でUI設計と実装を担当しています。色彩設計と実装品質の両面から、価値を届けるデザインを提案します。</p>
                         <div class="badges">
-                            <span class="badge">UIデザイン</span><span class="badge">LP制作</span><span class="badge">コーポレートサイト</span>
-                            <span class="badge">レスポンシブ</span><span class="badge">ダーク/ライト対応</span><span class="badge">アクセシビリティ配慮</span>
+                            <span class="badge">UIデザイン</span><span class="badge">LP制作</span><span class="badge">色彩検定1級</span>
                         </div>
-                    </div>
-                </div>
-                <div class="strength-cards fade-in-up">
-                    <div class="strength-card">
-                        <h3>Color Design</h3>
-                        <p>配色に根拠を持たせ、印象と可読性を両立します。</p>
-                    </div>
-                    <div class="strength-card">
-                        <h3>Information Design</h3>
-                        <p>見出し・余白・導線で迷いを減らします。</p>
-                    </div>
-                    <div class="strength-card">
-                        <h3>Coding Craft</h3>
-                        <p>再利用しやすい構造で、更新しやすい実装を行います。</p>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- Services Section -->
         <section id="services" class="section-bg">
             <div class="container">
-                <h2 class="section-title fade-in-up">What I Do</h2>
-                <div class="works-grid fade-in-up">
+                <div class="section-title-wrapper fade-in-up">
+                    <h2 class="section-title">What I Do</h2>
+                </div>
+                <div class="strength-cards fade-in-up">
                     <div class="strength-card">
                         <h3>Design</h3>
-                        <p>伝えたい情報が一目で理解できる構成に整理します。デザインカンプ、画像書き出し一式を提供。</p>
+                        <p>情報を整理し、一目で伝わるビジュアルを構築します。</p>
                     </div>
                     <div class="strength-card">
                         <h3>Build</h3>
-                        <p>軽く、崩れにくく、更新しやすい実装を提供。HTML/CSS/JS、レスポンシブ、テーマ切替対応。</p>
-                    </div>
-                    <div class="strength-card">
-                        <h3>Improve</h3>
-                        <p>離脱ポイントを特定し、優先度の高い改善から反映。UI改修、文言/導線の調整を行います。</p>
+                        <p>軽量で保守性の高いコードで、快適な操作感を提供します。</p>
                     </div>
                 </div>
-                <p style="text-align: center; margin-top: 2rem; font-size: 0.9rem; color: var(--text-muted);">※料金は内容により変動します。まずはご相談ください。</p>
             </div>
         </section>
 
+        <!-- Works Section -->
         <section id="works">
             <div class="container">
-                <h2 class="section-title fade-in-up">Selected Works</h2>
-                <div class="works-notice fade-in-up">以下は公開用のコンセプトデモです（守秘・非公開案件は掲載していません）。</div>
-                <div class="works-grid fade-in-up" id="works-grid"></div>
+                <div class="section-title-wrapper fade-in-up">
+                    <h2 class="section-title">Selected Works</h2>
+                </div>
+                <div class="works-grid fade-in-up">
+                    <div class="work-card">
+                        <div class="work-thumb"></div>
+                        <div class="work-content">
+                            <h3 class="work-title">Corporate Site</h3>
+                            <p>情報設計から担当したリニューアル案件。</p>
+                        </div>
+                    </div>
+                    <div class="work-card">
+                        <div class="work-thumb"></div>
+                        <div class="work-content">
+                            <h3 class="work-title">SaaS LP</h3>
+                            <p>成約率を重視した色彩設計のランディングページ。</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
+        <!-- Process Section -->
         <section id="process" class="section-bg">
             <div class="container">
-                <h2 class="section-title fade-in-up">How We Work</h2>
+                <div class="section-title-wrapper fade-in-up">
+                    <h2 class="section-title">How We Work</h2>
+                </div>
                 <div class="strength-cards fade-in-up">
                     <div class="strength-card" style="text-align: center;">
-                        <h4 style="color:var(--primary)">1. ヒアリング</h4>
-                        <p style="font-size: 0.9rem;">目的・ターゲットを確認</p>
-                        <strong style="display:block; margin-top:1rem; color:var(--accent)">「要件メモ」</strong>
+                        <h4>1. Hearing</h4>
+                        <p>目的の言語化</p>
                     </div>
                     <div class="strength-card" style="text-align: center;">
-                        <h4 style="color:var(--primary)">2. 設計</h4>
-                        <p style="font-size: 0.9rem;">情報整理と導線設計</p>
-                        <strong style="display:block; margin-top:1rem; color:var(--accent)">「サイト構成案」</strong>
+                        <h4>2. Planning</h4>
+                        <p>情報構造の設計</p>
                     </div>
                     <div class="strength-card" style="text-align: center;">
-                        <h4 style="color:var(--primary)">3. デザイン/実装</h4>
-                        <p style="font-size: 0.9rem;">見た目と挙動を作り込み</p>
-                        <strong style="display:block; margin-top:1rem; color:var(--accent)">「反映済みデータ」</strong>
-                    </div>
-                    <div class="strength-card" style="text-align: center;">
-                        <h4 style="color:var(--primary)">4. 公開/改善</h4>
-                        <p style="font-size: 0.9rem;">微調整と運用の整備</p>
-                        <strong style="display:block; margin-top:1rem; color:var(--accent)">「調整一覧」</strong>
+                        <h4>3. Execution</h4>
+                        <p>制作とフィードバック</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="testimonials">
+        <!-- Contact Section -->
+        <section id="contact">
             <div class="container">
-                <h2 class="section-title fade-in-up">Words from Clients</h2>
-                <div class="testimonial-grid fade-in-up">
-                    <div class="testimonial-card">
-                        <span class="testimonial-label">User First</span>
-                        <p class="testimonial-text">「要点が一瞬で分かる構成になり、説明コストが下がりました。」</p>
-                    </div>
-                    <div class="testimonial-card">
-                        <span class="testimonial-label">Visual Identity</span>
-                        <p class="testimonial-text">「配色の意図が明確で、ブランドの印象が整いました。」</p>
-                    </div>
-                    <div class="testimonial-card">
-                        <span class="testimonial-label">Sustainability</span>
-                        <p class="testimonial-text">「実装が軽く、更新しやすいので運用が続けられます。」</p>
-                    </div>
+                <div class="section-title-wrapper fade-in-up">
+                    <h2 class="section-title">Contact</h2>
                 </div>
-            </div>
-        </section>
-
-        <section id="contact" class="section-bg">
-            <div class="container">
-                <h2 class="section-title fade-in-up">Let’s Build Something</h2>
                 <div class="contact-form fade-in-up">
-                    <form id="contactForm">
+                    <form>
                         <div class="form-group">
-                            <label class="form-label">氏名 *</label>
-                            <input type="text" class="form-input" required>
+                            <input type="text" placeholder="Name" class="form-input">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">メールアドレス *</label>
-                            <input type="email" class="form-input" required>
+                            <input type="email" placeholder="Email" class="form-input">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">相談内容 *</label>
-                            <select class="form-select" required>
-                                <option value="" disabled selected>選択してください</option>
-                                <option>UIデザイン</option><option>LP制作</option><option>コーディング</option><option>改善相談</option><option>その他</option>
-                            </select>
+                            <textarea placeholder="Message" rows="4" class="form-textarea"></textarea>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">詳細</label>
-                            <textarea class="form-textarea" rows="4"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">送信する</button>
-                        <p style="text-align: center; font-size: 0.75rem; margin-top: 1rem; color: var(--text-muted);">入力情報は返信の目的でのみ利用します。</p>
+                        <button class="btn btn-primary" style="width: 100%;">Send Message</button>
                     </form>
-                    <div class="contact-info">
-                        <p>Email: hello@example.com</p>
-                        <div class="contact-links">
-                            <a href="#">X (Twitter)</a><a href="#">GitHub</a>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
     </main>
 
     <footer>
-        <div class="container footer-inner">
-            <small>&copy; 2026 Taro Yamada. All rights reserved.</small>
-            <a href="#" class="btn btn-primary" style="padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px;">↑</a>
+        <div class="container">
+            <small>&copy; 2026 Taro Yamada.</small>
         </div>
     </footer>
 
-    <div id="modalOverlay" class="modal-overlay" aria-hidden="true">
-        <div class="modal-container">
-            <button class="modal-close" id="modalClose">&times;</button>
-            <div id="modalContent"></div>
-        </div>
-    </div>
-
-    <div id="toast" class="toast">送信しました（デモ）。</div>
-
     <script>
-        const worksData = [
-            { title: "SaaS Landing Page", role: "Design + Build", issue: "価値が伝わらず離脱が多い", solution: "見出し再設計と比較ブロック", result: "読み進め率の向上" },
-            { title: "Corporate Site", role: "Info Design + Build", issue: "情報が探しづらい", solution: "ナビと階層の整理", result: "目的ページへの到達率改善" },
-            { title: "Recruit Page", role: "Design", issue: "魅力が抽象的", solution: "写真とコピーの優先度設計", result: "共感を生む構成" },
-            { title: "EC Product Page", role: "Design + Build", issue: "購入理由が弱い", solution: "ベネフィット優先の構成", result: "説得力の強化" },
-            { title: "Portfolio Template", role: "Build", issue: "更新が面倒", solution: "コンポーネント化", result: "拡張性の確保" },
-            { title: "Event LP", role: "Design + Motion", issue: "視認性が低い", solution: "タイポグラフィの強弱", result: "視線誘導の明確化" }
-        ];
-
         document.addEventListener('DOMContentLoaded', () => {
-            const html = document.documentElement;
-            const themeBtn = document.getElementById('theme-toggle');
-            const themeText = document.getElementById('theme-text');
-            
-            // Theme Logic
-            const toggleTheme = () => {
-                const current = html.getAttribute('data-theme');
-                const next = current === 'light' ? 'dark' : 'light';
-                html.setAttribute('data-theme', next);
-                themeText.textContent = next.charAt(0).toUpperCase() + next.slice(1);
-                localStorage.setItem('theme', next);
-            };
-            themeBtn.addEventListener('click', toggleTheme);
-            document.getElementById('theme-toggle-mobile').addEventListener('click', toggleTheme);
-
-            // Menu Logic
-            const burger = document.getElementById('hamburger');
-            const mobileNav = document.getElementById('mobile-nav');
-            burger.addEventListener('click', () => {
-                const expanded = burger.getAttribute('aria-expanded') === 'true';
-                burger.setAttribute('aria-expanded', !expanded);
-                mobileNav.setAttribute('aria-hidden', expanded);
-                mobileNav.style.right = expanded ? '-100%' : '0';
-            });
-
-            // Works Rendering
-            const grid = document.getElementById('works-grid');
-            worksData.forEach((w, i) => {
-                const el = document.createElement('div');
-                el.className = 'work-card fade-in-up';
-                el.innerHTML = `
-                    <div class="work-thumb"><div style="width:100%;height:100%;background:var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-muted)">Demo ${i+1}</div></div>
-                    <div class="work-content">
-                        <span class="work-role">${w.role}</span>
-                        <h3 class="work-title">${w.title}</h3>
-                        <p class="work-excerpt">${w.issue}</p>
-                    </div>
-                `;
-                el.onclick = () => {
-                    document.getElementById('modalContent').innerHTML = `
-                        <h2>${w.title}</h2>
-                        <p><strong>課題:</strong> ${w.issue}</p>
-                        <p><strong>対応:</strong> ${w.solution}</p>
-                        <p><strong>結果:</strong> ${w.result}</p>
-                    `;
-                    document.getElementById('modalOverlay').setAttribute('aria-hidden', 'false');
-                };
-                grid.appendChild(el);
-            });
-
-            // Intersection Observer
             const observer = new IntersectionObserver(entries => {
                 entries.forEach(entry => {
                     if(entry.isIntersecting) entry.target.classList.add('visible');
                 });
             }, { threshold: 0.1 });
             document.querySelectorAll('.fade-in-up').forEach(d => observer.observe(d));
-
-            // Modal Close
-            document.getElementById('modalClose').onclick = () => document.getElementById('modalOverlay').setAttribute('aria-hidden', 'true');
-            
-            // Form Toast
-            document.getElementById('contactForm').onsubmit = (e) => {
-                e.preventDefault();
-                const toast = document.getElementById('toast');
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 3000);
-            };
         });
     </script>
 </body>
