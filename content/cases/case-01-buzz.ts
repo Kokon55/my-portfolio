@@ -1,0 +1,481 @@
+import type { Case } from './types';
+
+// インフルエンサーAの投稿いいね数(30件)。平均約5000、分散が大きい
+const A_LIKES = [
+  20000, 18000, 17000, 15000, 12000,
+  8000, 7000, 6500, 6000, 5500,
+  5000, 4500, 4000, 3500, 3000,
+  2500, 2000, 1800, 1500, 1200,
+  1100, 900, 800, 700, 600,
+  500, 400, 300, 200, 100,
+];
+// 合計 = 約 145,100、平均 ≈ 4,837 — UIでは「約5000」と表記
+
+// インフルエンサーBの投稿いいね数(30件)。平均約3000、分散が小さい
+const B_LIKES = [
+  4000, 3900, 3800, 3700, 3600,
+  3500, 3400, 3300, 3200, 3100,
+  3050, 3000, 2950, 2900, 2850,
+  2800, 2750, 2700, 2650, 2600,
+  2550, 2500, 2450, 2400, 2350,
+  2300, 2250, 2200, 2150, 2100,
+];
+
+// Aのフォロワー成長(24ヶ月、不自然に直線的)
+const A_GROWTH = Array.from({ length: 24 }, (_, i) => 5000 + i * 4000);
+// Bのフォロワー成長(24ヶ月、自然な波)
+const B_GROWTH = [
+  500, 800, 1100, 1300, 1800, 2200, 2500, 3500,
+  4200, 5000, 6500, 8000, 9500, 11000, 14000, 16500,
+  18000, 20000, 22500, 24000, 26000, 27500, 28500, 30000,
+];
+
+const buzzCase: Case = {
+  id: 'case-01-buzz',
+  title: 'バズの真実',
+  subtitle: '10万いいねの嘘',
+  client: {
+    name: '山田',
+    age: 27,
+    occupation: '新人マーケター',
+    avatar: {
+      skin: '#f3d1b6',
+      hair: '#3a2a1e',
+      accent: '#1e3a8a',
+      expression: 'distraught',
+    },
+    introLine: 'すみません、探偵さん…会社の500万円が、煙のように消えたんです。',
+  },
+  difficulty: 2,
+  estimatedMinutes: 8,
+  mathField: '数学I 「データの分析」',
+  shortSummary:
+    'フォロワー10万、いいね5000のインフルエンサーA。フォロワー3万、いいね3000のインフルエンサーB。Aを契約したが、なぜ効果が出ない?',
+  isFreePreview: true,
+  freeUntilAct: 3,
+  acquiredSkills: [
+    'SNSの数字を「絶対値」ではなく「率」と「分布」で評価できる',
+    '平均だけでなく分散を見て、バズ偏重か安定発信かを判別できる',
+    'フォロワー成長カーブの「不自然な直線性」から bot 購入を見抜ける',
+    '高校数学I「データの分析」(平均・分散・標準偏差・外れ値)を実戦で使える',
+  ],
+  badge: {
+    id: 'badge-sns-detective-3',
+    name: 'SNS探偵・三級',
+    rank: '三級',
+    description: 'SNSの「絶対値の罠」を見抜く者の証',
+  },
+
+  acts: [
+    // ──────────────── 第1幕:依頼 ────────────────
+    {
+      type: 'commission',
+      title: '【依頼】事件ファイル No.001',
+      steps: [
+        {
+          id: 'c-01',
+          type: 'dialogue',
+          speaker: 'narrator',
+          content:
+            '夜更けの探偵事務所。一通の依頼メールが届いた——差出人は新人マーケターの山田。件名「500万円が、消えました」。',
+        },
+        {
+          id: 'c-02',
+          type: 'dialogue',
+          speaker: 'client',
+          content:
+            'すみません、探偵さん…うちの会社、インフルエンサーマーケに500万円使ったんです。',
+        },
+        {
+          id: 'c-03',
+          type: 'dialogue',
+          speaker: 'client',
+          content:
+            'インフルエンサーAは「フォロワー10万人、いいね平均5000」、Bは「フォロワー3万人、いいね平均3000」。Aの方が良さそうだから契約したのに…結果は全然違って。',
+        },
+        {
+          id: 'c-04',
+          type: 'dialogue',
+          speaker: 'client',
+          content:
+            'PR投稿のいいねは、想定の1/5。フォロワーの数だけ見たら、桁違いの差なのに——何が間違ってたんでしょう?',
+        },
+        {
+          id: 'c-05',
+          type: 'narrative',
+          speaker: 'detective',
+          content:
+            'なるほど。フォロワー数の絶対値で判断したわけだ。だが SNS の数字には、しばしば嘘が紛れ込んでいる。まずは両者のプロフィールを見せてもらおう。',
+        },
+        {
+          id: 'c-06',
+          type: 'interactive',
+          content: '架空SNS「Fluttr」のプロフィール画面',
+          interaction: {
+            kind: 'sns_profile',
+            profile: {
+              platform: 'Fluttr',
+              handle: '@aurora_lifestyle',
+              displayName: 'Aurora ✦ ライフスタイル',
+              bio: '🌙 暮らしを彩る発信 / フォロワー10万人 / お仕事 → DM',
+              followers: 100000,
+              following: 432,
+              posts: 1284,
+              verified: true,
+            },
+          },
+        },
+        {
+          id: 'c-07',
+          type: 'interactive',
+          content: '架空SNS「Fluttr」のプロフィール画面',
+          interaction: {
+            kind: 'sns_profile',
+            profile: {
+              platform: 'Fluttr',
+              handle: '@minari_kurashi',
+              displayName: 'みなり / 暮らしの研究家',
+              bio: '🪴 小さな発見をシェア / 質問はDMで / フォロワー3万',
+              followers: 30000,
+              following: 280,
+              posts: 612,
+              verified: false,
+            },
+          },
+        },
+        {
+          id: 'c-08',
+          type: 'dialogue',
+          speaker: 'detective',
+          content:
+            '——確かに、表面の数字ならAの圧勝だ。だが、ここに違和感がある。先へ進もう。',
+        },
+      ],
+    },
+
+    // ──────────────── 第2幕:現場 ────────────────
+    {
+      type: 'crime_scene',
+      title: '【現場】データに残された痕跡',
+      steps: [
+        {
+          id: 's-01',
+          type: 'narrative',
+          speaker: 'detective',
+          content:
+            '事件現場は「投稿データ」だ。AとB、それぞれ直近30投稿のいいね数をヒストグラムにする。よく見たまえ。',
+        },
+        {
+          id: 's-02',
+          type: 'interactive',
+          content: '直近30投稿のいいね数の分布',
+          interaction: {
+            kind: 'distribution_compare',
+            datasets: [
+              { label: 'Aurora (フォロワー10万)', values: A_LIKES },
+              { label: 'みなり (フォロワー3万)', values: B_LIKES },
+            ],
+          },
+          hint: 'Aは平均が高い。だが、ばらつきはどうだ?',
+        },
+        {
+          id: 's-03',
+          type: 'dialogue',
+          speaker: 'detective',
+          content:
+            'Aは平均こそ高いが、いいね数が100から20000まで激しく揺れている。ほとんどの投稿は数百〜千いいね、ごく稀に「バズ」が混じる構造だ。',
+        },
+        {
+          id: 's-04',
+          type: 'dialogue',
+          speaker: 'detective',
+          content:
+            '一方Bは2000〜4000の狭い範囲に密集している。安定して、フォロワーに刺さっている。',
+        },
+        {
+          id: 's-05',
+          type: 'dialogue',
+          speaker: 'client',
+          content:
+            'え…平均は同じなのに、こんなに分布が違うんですか?',
+        },
+        {
+          id: 's-06',
+          type: 'dialogue',
+          speaker: 'detective',
+          content:
+            '「平均」だけでは、データの真の姿は見えない。これは古来データ分析の鉄則だ。捜査に必要な道具を揃えよう。',
+        },
+      ],
+    },
+
+    // ──────────────── 第3幕:捜査(道具を学ぶ)────────────────
+    {
+      type: 'investigation',
+      title: '【捜査】統計の道具を授ける',
+      steps: [
+        {
+          id: 'i-01',
+          type: 'mini_lesson',
+          speaker: 'detective',
+          content:
+            '【道具1:エンゲージメント率】SNSの真の影響力は、フォロワー数ではなく「フォロワーのうち何%が反応したか」で測る。これを「率」または「比率」で考えるという。',
+          formula: 'エンゲージ率 = \\frac{\\text{いいね数}}{\\text{フォロワー数}} \\times 100\\%',
+        },
+        {
+          id: 'i-02',
+          type: 'interactive',
+          content: '実際に計算してみよう',
+          interaction: {
+            kind: 'engagement_calc',
+            influencers: [
+              {
+                handle: '@aurora_lifestyle',
+                displayName: 'Aurora',
+                followers: 100000,
+                posts: A_LIKES.map((l, i) => ({ likes: l, date: `2026-${String(((i % 12) + 1)).padStart(2, '0')}-15` })),
+                growthCurve: A_GROWTH,
+                botRatio: 0.6,
+              },
+              {
+                handle: '@minari_kurashi',
+                displayName: 'みなり',
+                followers: 30000,
+                posts: B_LIKES.map((l, i) => ({ likes: l, date: `2026-${String(((i % 12) + 1)).padStart(2, '0')}-15` })),
+                growthCurve: B_GROWTH,
+                botRatio: 0.02,
+              },
+            ],
+          },
+          hint: '見かけのエンゲージ率では Aは5%、Bは10%。Bが既に2倍だ。',
+        },
+        {
+          id: 'i-03',
+          type: 'mini_lesson',
+          speaker: 'detective',
+          content:
+            '【道具2:分散と標準偏差】平均だけでなく「データのばらつき」も見る。バズ依存型かどうかを判別できる。記号で書くと σ(シグマ)、または σ²(ぶんさん)。',
+          formula: 's^2 = \\frac{1}{n} \\sum_{i=1}^{n}(x_i - \\bar{x})^2',
+        },
+        {
+          id: 'i-04',
+          type: 'narrative',
+          speaker: 'detective',
+          content:
+            'A の標準偏差は約 5,500。平均5000に対し、ばらつきが平均と同じくらい大きい——「バズった1投稿が平均を吊り上げている」典型だ。',
+        },
+        {
+          id: 'i-05',
+          type: 'narrative',
+          speaker: 'detective',
+          content:
+            'B の標準偏差は約 540。平均3000に対しばらつきは18%。「安定して反応されている」証拠。',
+        },
+        {
+          id: 'i-06',
+          type: 'mini_lesson',
+          speaker: 'detective',
+          content:
+            '【道具3:成長カーブの不自然さ】最後の道具だ。フォロワー成長の時系列を見る。bot を買ったアカウントは、不自然に直線的な伸びを示す。',
+        },
+        {
+          id: 'i-07',
+          type: 'interactive',
+          content: 'フォロワー数の月次推移を比較',
+          interaction: {
+            kind: 'follower_growth',
+            series: [
+              { label: 'Aurora', points: A_GROWTH, isBot: true },
+              { label: 'みなり', points: B_GROWTH, isBot: false },
+            ],
+          },
+          hint: 'Auroraの曲線は直線に近すぎる。R²(決定係数)で測れる。',
+        },
+      ],
+    },
+
+    // ──────────────── 第4幕:推理 ────────────────
+    {
+      type: 'deduction',
+      title: '【推理】データを分析せよ',
+      steps: [
+        {
+          id: 'd-01',
+          type: 'narrative',
+          speaker: 'detective',
+          content:
+            '道具は揃った。ここから先は君の番だ。データを操作して、真相を導き出してくれ。',
+        },
+        {
+          id: 'd-02',
+          type: 'interactive',
+          content:
+            '推理①:Aurora(フォロワー10万、平均いいね約5000)のエンゲージメント率は何%?',
+          interaction: {
+            kind: 'slider_estimate',
+            question: 'スライダーでエンゲージメント率を推測してください',
+            min: 0,
+            max: 20,
+            step: 0.5,
+            correctAnswer: 5,
+            tolerance: 0.6,
+            unit: '%',
+            correctFeedback:
+              '正解。約5%。だが、これは「見かけ」の数字に過ぎない。',
+            wrongFeedback:
+              '惜しい。5000 ÷ 100,000 × 100% = 5% だ。',
+          },
+        },
+        {
+          id: 'd-03',
+          type: 'interactive',
+          content:
+            '推理②:みなり(フォロワー3万、平均いいね3000)のエンゲージメント率は何%?',
+          interaction: {
+            kind: 'slider_estimate',
+            question: 'スライダーでエンゲージメント率を推測してください',
+            min: 0,
+            max: 20,
+            step: 0.5,
+            correctAnswer: 10,
+            tolerance: 0.6,
+            unit: '%',
+            correctFeedback:
+              '正解。10%。SNS業界では「3%超えれば優秀」とされる中、これは異例の高さだ。',
+            wrongFeedback:
+              '違うな。3000 ÷ 30,000 × 100% = 10% だ。',
+          },
+        },
+        {
+          id: 'd-04',
+          type: 'interactive',
+          content:
+            '推理③:Aurora のフォロワー成長は「不自然に直線的」だ。R²(決定係数)を直線フィッティングで測ると、いくつになる?',
+          interaction: {
+            kind: 'slider_estimate',
+            question: '完全直線=1.00、ノイズが多い=0.5以下',
+            min: 0,
+            max: 1,
+            step: 0.01,
+            correctAnswer: 1.0,
+            tolerance: 0.05,
+            unit: '',
+            correctFeedback:
+              'R² ≈ 1.00。完璧な直線。実在する人気アカウントの成長で R² が 0.99 を超えるのは、ほぼ不可能だ。',
+            wrongFeedback:
+              'もっと高い。Auroraの成長は完全な直線——R² ≈ 1.00 だ。',
+          },
+        },
+        {
+          id: 'd-05',
+          type: 'interactive',
+          content:
+            '最終推理:bot 比率を考慮した「真のエンゲージメント率」は何%?',
+          hint: 'Aurora のフォロワー10万のうち6万が bot。実フォロワー4万に対して、いいね 5000(うち bot は反応しない)。',
+          interaction: {
+            kind: 'true_score',
+            influencers: [
+              {
+                handle: '@aurora_lifestyle',
+                displayName: 'Aurora',
+                followers: 100000,
+                posts: A_LIKES.map((l, i) => ({ likes: l, date: `2026-${String(((i % 12) + 1)).padStart(2, '0')}-15` })),
+                growthCurve: A_GROWTH,
+                botRatio: 0.6,
+              },
+              {
+                handle: '@minari_kurashi',
+                displayName: 'みなり',
+                followers: 30000,
+                posts: B_LIKES.map((l, i) => ({ likes: l, date: `2026-${String(((i % 12) + 1)).padStart(2, '0')}-15` })),
+                growthCurve: B_GROWTH,
+                botRatio: 0.02,
+              },
+            ],
+          },
+        },
+      ],
+    },
+
+    // ──────────────── 第5幕:解決 ────────────────
+    {
+      type: 'solution',
+      title: '【解決】真相を告げる時間だ',
+      steps: [
+        {
+          id: 'sol-01',
+          type: 'narrative',
+          speaker: 'detective',
+          content:
+            '事件は解けた。では、真相を告げよう。',
+        },
+        {
+          id: 'sol-02',
+          type: 'dialogue',
+          speaker: 'detective',
+          content:
+            '犯人は——「フォロワー数」という見せかけの絶対値だ。',
+        },
+        {
+          id: 'sol-03',
+          type: 'narrative',
+          speaker: 'detective',
+          content:
+            'Aurora のフォロワー10万人のうち、6万人は購入された bot だった。bot は商品を買わない。実フォロワー4万人に対するエンゲージメント率は2%以下。',
+        },
+        {
+          id: 'sol-04',
+          type: 'narrative',
+          speaker: 'detective',
+          content:
+            'みなりは bot 比率2%、実エンゲージ率は約10%。真の「届く力」で言えば、みなりは Aurora の3倍以上だった。',
+        },
+        {
+          id: 'sol-05',
+          type: 'dialogue',
+          speaker: 'client',
+          content:
+            'そんな…じゃあ僕は、フォロワーの数字に騙されて、500万円を bot に投げたってことですか…',
+        },
+        {
+          id: 'sol-06',
+          type: 'dialogue',
+          speaker: 'detective',
+          content:
+            'ご愁傷様。だが、君は今この瞬間、二度と同じ罠に堕ちない目を手に入れた。今後は3つを必ず確認しろ:',
+        },
+        {
+          id: 'sol-07',
+          type: 'mini_lesson',
+          speaker: 'detective',
+          content:
+            '【教訓】\n① フォロワー数より、エンゲージメント率(率)で見る\n② 平均だけでなく、ばらつき(分散)を見る\n③ 成長カーブが不自然に直線的なアカウントを疑う',
+        },
+        {
+          id: 'sol-08',
+          type: 'interactive',
+          content:
+            '応用問題:「Vutube 登録者100万・平均再生5000」のチャンネルがある。エンゲージ率は?',
+          interaction: {
+            kind: 'choice',
+            question: '次のうち正しいのは?',
+            options: [
+              { label: '0.5%。極端に低い。bot やフォロー買いの可能性大', isCorrect: true, feedback: '正解。100万人いて5000再生は、エンゲージ率0.5%。健全な動画チャンネルなら3-10%は欲しい。' },
+              { label: '5%。十分な人気チャンネル', isCorrect: false, feedback: '違う。5000 ÷ 1,000,000 = 0.5%。' },
+              { label: 'フォロワー100万なら絶対に効果がある', isCorrect: false, feedback: 'まさにそれが今回学んだ罠だ。' },
+            ],
+          },
+        },
+        {
+          id: 'sol-09',
+          type: 'narrative',
+          speaker: 'detective',
+          content:
+            'よくやった、新人探偵。事件 No.001 — 解決。',
+        },
+      ],
+    },
+  ],
+};
+
+export default buzzCase;
