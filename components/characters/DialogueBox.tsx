@@ -51,6 +51,7 @@ export default function DialogueBox({
     setDisplayed('');
     setDone(false);
     let i = 0;
+    // 14ms / char(以前は 22ms)で約 1.6 倍速化
     const id = setInterval(() => {
       i++;
       setDisplayed(text.slice(0, i));
@@ -58,9 +59,16 @@ export default function DialogueBox({
         clearInterval(id);
         setDone(true);
       }
-    }, 22);
+    }, 14);
     return () => clearInterval(id);
   }, [text, typewriter]);
+
+  // 吹き出しタップで残りを一気に表示
+  const skipToEnd = () => {
+    if (done) return;
+    setDisplayed(text);
+    setDone(true);
+  };
 
   const showsClient = speaker === 'client' && client;
   const showsDetective = speaker === 'detective';
@@ -90,7 +98,11 @@ export default function DialogueBox({
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
-        className={`relative rounded-2xl border-l-4 ${speakerColor[speaker]} bg-slate-900/70 backdrop-blur-sm p-4 sm:p-5 shadow-xl`}
+        onClick={skipToEnd}
+        className={`relative rounded-2xl border-l-4 ${speakerColor[speaker]} bg-slate-900/70 backdrop-blur-sm p-4 sm:p-5 shadow-xl ${
+          !done ? 'cursor-pointer' : ''
+        }`}
+        title={!done ? 'タップで全文表示' : ''}
       >
         <div className="flex items-start gap-3">
           {showsClient && !showLargePortrait && (

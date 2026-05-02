@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { findCase } from '@/content/cases';
+import cases, { findCase } from '@/content/cases';
 import DetectiveBadge from '@/components/ui/DetectiveBadge';
 import { useDetectiveStore } from '@/lib/store';
 
@@ -15,6 +15,17 @@ export default function ResultPage() {
   const caseDef = findCase(caseId);
   const acquiredBadges = useDetectiveStore((s) => s.acquiredBadges);
   const solvedCases = useDetectiveStore((s) => s.solvedCases);
+
+  // 次のケース ID を求める(プレイ可能ケースの順序で次)
+  const nextCase = useMemo(() => {
+    const playable = cases.filter((c) => !c.comingSoon);
+    const idx = playable.findIndex((c) => c.id === caseId);
+    if (idx < 0 || idx >= playable.length - 1) return null;
+    return playable[idx + 1];
+  }, [caseId]);
+
+  const playableCount = cases.filter((c) => !c.comingSoon).length;
+  const allSolved = solvedCases.length >= playableCount;
 
   useEffect(() => {
     if (!caseDef) router.push('/');
@@ -67,7 +78,9 @@ export default function ResultPage() {
         </motion.div>
 
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 text-center">
-          <div className="text-xs text-slate-500 mb-2">獲得バッジ {acquiredBadges.length} 個 / 解決ケース {solvedCases.length} 件</div>
+          <div className="text-xs text-slate-500 mb-2">
+            獲得バッジ {acquiredBadges.length} 個 / 解決ケース {solvedCases.length} 件
+          </div>
           <div className="flex flex-wrap gap-3 justify-center">
             {acquiredBadges.map((b) => (
               <DetectiveBadge key={b.id} badge={b} size="sm" />
@@ -75,21 +88,43 @@ export default function ResultPage() {
           </div>
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-3">
-          <a
-            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-3 rounded-xl bg-slate-800 text-slate-100 font-semibold text-center hover:bg-slate-700"
-          >
-            🚀 結果をシェア
-          </a>
-          <Link
-            href="/"
-            className="px-4 py-3 rounded-xl bg-amber-accent text-slate-900 font-bold text-center active:scale-95"
-          >
-            次の事件へ
-          </Link>
+        {/* メイン動線:次のケースへ進む(あれば) */}
+        <div className="space-y-3">
+          {nextCase ? (
+            <Link
+              href={`/case/${nextCase.id}`}
+              className="block w-full px-4 py-4 rounded-2xl bg-gradient-to-r from-amber-accent to-yellow-600 text-slate-900 font-bold text-center text-lg active:scale-95 transition shadow-xl shadow-amber-500/30"
+            >
+              ▶ 次の事件へ:「{nextCase.title}」
+            </Link>
+          ) : (
+            <div className="rounded-2xl border-2 border-amber-accent/50 bg-gradient-to-br from-amber-950/40 to-slate-950 p-5 text-center">
+              <div className="text-3xl mb-2">🏆</div>
+              <div className="font-detective text-xl text-amber-accent mb-1">
+                {allSolved ? '完全制覇' : '現時点で公開中の事件をすべて解決'}
+              </div>
+              <p className="text-xs text-slate-300 mt-1">
+                次の事件は順次追加されます。お疲れさまでした。
+              </p>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-2">
+            <a
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-2.5 rounded-xl bg-slate-800 text-slate-200 text-sm font-semibold text-center hover:bg-slate-700"
+            >
+              🚀 結果をシェア
+            </a>
+            <Link
+              href="/"
+              className="px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 text-sm text-center hover:bg-slate-800"
+            >
+              タイトルへ戻る
+            </Link>
+          </div>
         </div>
       </div>
     </main>

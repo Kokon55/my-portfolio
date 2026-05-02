@@ -4,16 +4,33 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import cases from '@/content/cases';
-import CaseList from '@/components/ui/CaseList';
 import { useDetectiveStore } from '@/lib/store';
+
+// 次にプレイすべきケースの ID を返す。
+// すべて完走済みなら最初のケース(リプレイ)、Coming Soon は除外。
+const getNextCaseId = (solvedCases: string[]): string => {
+  const playable = cases.filter((c) => !c.comingSoon);
+  const next = playable.find((c) => !solvedCases.includes(c.id));
+  return (next ?? playable[0]).id;
+};
 
 export default function HomePage() {
   const solvedCases = useDetectiveStore((s) => s.solvedCases);
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
 
-  const playable = cases.filter((c) => !c.comingSoon).length;
-  const total = cases.length;
+  const playableCount = cases.filter((c) => !c.comingSoon).length;
+  const solvedCount = hydrated ? solvedCases.length : 0;
+  const nextCaseId = hydrated ? getNextCaseId(solvedCases) : 'case-01-buzz';
+  const allCleared = hydrated && solvedCount >= playableCount;
+
+  const buttonLabel = !hydrated
+    ? '事件を始める'
+    : solvedCount === 0
+    ? '第1の事件を始める'
+    : allCleared
+    ? '最初から遊び直す'
+    : '次の事件へ進む';
 
   return (
     <main className="min-h-screen bg-paper">
@@ -54,35 +71,28 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="mt-8 flex justify-center"
+            className="mt-10 flex justify-center"
           >
             <Link
-              href="/case/case-01-buzz"
-              className="px-6 py-3.5 rounded-xl bg-amber-accent text-slate-900 font-bold active:scale-95 transition shadow-lg shadow-amber-500/20"
+              href={`/case/${nextCaseId}`}
+              className="px-8 py-4 rounded-2xl bg-amber-accent text-slate-900 font-bold text-lg active:scale-95 transition shadow-xl shadow-amber-500/30 hover:shadow-amber-500/50"
             >
-              第1の事件を始める
+              ▶ {buttonLabel}
             </Link>
           </motion.div>
 
-          <p className="text-[11px] text-slate-500 mt-4">
-            モバイル最適化 / 全{total}ケース完全網羅(数学I・A・B)
-          </p>
+          {hydrated && solvedCount > 0 && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="text-xs text-slate-400 mt-4"
+            >
+              ✓ 解決済み {solvedCount} 件 / 全 {playableCount} 件
+              {allCleared && <span className="ml-1 text-amber-accent">— 完全制覇 🏆</span>}
+            </motion.p>
+          )}
         </div>
-      </section>
-
-      {/* ケース一覧 */}
-      <section className="max-w-3xl mx-auto px-4 py-12">
-        <div className="text-center mb-8">
-          <div className="text-xs text-amber-accent uppercase tracking-widest">事件簿</div>
-          <h2 className="font-detective text-2xl sm:text-3xl text-slate-100 mt-1">
-            あなたを待つ、6つの事件
-          </h2>
-          <p className="text-xs text-slate-500 mt-2">
-            プレイ可能 {playable} 件 / 全 {total} 件(残りは順次追加)
-          </p>
-        </div>
-
-        <CaseList cases={cases} solvedCases={hydrated ? solvedCases : []} />
       </section>
 
       {/* 価値提案 */}
