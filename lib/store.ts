@@ -21,12 +21,6 @@ type DetectiveState = {
   acquiredSkills: string[];
   solveCase: (caseId: string, badge: DetectiveBadge, skills: string[]) => void;
 
-  // 購入状態
-  isPurchased: boolean;
-  purchaserEmail: string | null;
-  setPurchased: (email: string) => void;
-  clearPurchase: () => void;
-
   // 設定
   soundEnabled: boolean;
   toggleSound: () => void;
@@ -58,11 +52,6 @@ export const useDetectiveStore = create<DetectiveState>()(
             : [...s.acquiredBadges, badge],
           acquiredSkills: Array.from(new Set([...s.acquiredSkills, ...skills])),
         })),
-
-      isPurchased: false,
-      purchaserEmail: null,
-      setPurchased: (email) => set({ isPurchased: true, purchaserEmail: email }),
-      clearPurchase: () => set({ isPurchased: false, purchaserEmail: null }),
 
       soundEnabled: false,
       toggleSound: () => set((s) => ({ soundEnabled: !s.soundEnabled })),

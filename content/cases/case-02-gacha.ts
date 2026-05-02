@@ -21,8 +21,6 @@ const gachaCase: Case = {
   mathField: '数学A「確率」+ 数学B「二項分布」',
   shortSummary:
     '排出率1%のガチャを100連回したのに SSR がゼロ。これは詐欺なのか、それともあなたの直感の方が間違っているのか?',
-  isFreePreview: false,
-  freeUntilAct: 0,
   acquiredSkills: [
     '期待値と実際のばらつきの違いを正しく理解できる',
     '二項分布で「k 個出る確率」を計算・直感できる',

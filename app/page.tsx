@@ -6,10 +6,8 @@ import { useEffect, useState } from 'react';
 import cases from '@/content/cases';
 import CaseList from '@/components/ui/CaseList';
 import { useDetectiveStore } from '@/lib/store';
-import { IS_FREE_MODE } from '@/lib/config';
 
 export default function HomePage() {
-  const isPurchased = useDetectiveStore((s) => s.isPurchased);
   const solvedCases = useDetectiveStore((s) => s.solvedCases);
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
@@ -56,28 +54,18 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="mt-8 flex flex-col sm:flex-row gap-3 justify-center"
+            className="mt-8 flex justify-center"
           >
             <Link
               href="/case/case-01-buzz"
               className="px-6 py-3.5 rounded-xl bg-amber-accent text-slate-900 font-bold active:scale-95 transition shadow-lg shadow-amber-500/20"
             >
-              {IS_FREE_MODE ? '第1の事件を始める' : '無料で第1の事件を体験'}
+              第1の事件を始める
             </Link>
-            {!IS_FREE_MODE && (
-              <Link
-                href="/purchase"
-                className="px-6 py-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 font-semibold hover:bg-slate-700 active:scale-95 transition"
-              >
-                2,480円で全事件購入 →
-              </Link>
-            )}
           </motion.div>
 
           <p className="text-[11px] text-slate-500 mt-4">
-            {IS_FREE_MODE
-              ? `モバイル最適化 / 全${total}ケース完全網羅(数学I・A・B)`
-              : `買い切り / 永久アクセス / モバイル最適化 / 全${total}ケース完全網羅(数学I・A・B)`}
+            モバイル最適化 / 全{total}ケース完全網羅(数学I・A・B)
           </p>
         </div>
       </section>
@@ -94,11 +82,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <CaseList
-          cases={cases}
-          isPurchased={hydrated ? isPurchased : false}
-          solvedCases={hydrated ? solvedCases : []}
-        />
+        <CaseList cases={cases} solvedCases={hydrated ? solvedCases : []} />
       </section>
 
       {/* 価値提案 */}
@@ -147,7 +131,9 @@ export default function HomePage() {
 
       <footer className="border-t border-slate-800 py-8 text-center text-xs text-slate-500">
         © データ探偵 / SNS編 — 高校数学で読み解くSNS時代のリテラシー
-        <div className="mt-1 text-[10px] text-slate-600">本作品に登場するSNS・企業・ゲームは全て架空のものです</div>
+        <div className="mt-1 text-[10px] text-slate-600">
+          本作品に登場するSNS・企業・ゲームは全て架空のものです
+        </div>
       </footer>
     </main>
   );

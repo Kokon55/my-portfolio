@@ -28,8 +28,6 @@ const comingSoon = (
   estimatedMinutes: 8,
   mathField: field,
   shortSummary: short,
-  isFreePreview: false,
-  freeUntilAct: 0,
   acquiredSkills: [],
   badge: { id: `badge-${id}`, name: '?', rank: '?', description: '?' },
   acts: [],

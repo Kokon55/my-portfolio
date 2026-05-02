@@ -51,8 +51,6 @@ const buzzCase: Case = {
   mathField: '数学I 「データの分析」',
   shortSummary:
     'フォロワー10万、いいね5000のインフルエンサーA。フォロワー3万、いいね3000のインフルエンサーB。Aを契約したが、なぜ効果が出ない?',
-  isFreePreview: true,
-  freeUntilAct: 3,
   acquiredSkills: [
     'SNSの数字を「絶対値」ではなく「率」と「分布」で評価できる',
     '平均だけでなく分散を見て、バズ偏重か安定発信かを判別できる',

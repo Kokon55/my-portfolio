@@ -3,30 +3,29 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import ClientAvatar from '../characters/ClientAvatar';
-import { IS_FREE_MODE } from '@/lib/config';
 import type { Case } from '@/content/cases/types';
 
 const difficultyDots = (n: number) =>
   Array.from({ length: 5 }, (_, i) => (
-    <span key={i} className={`inline-block w-1.5 h-1.5 rounded-full mx-px ${i < n ? 'bg-amber-accent' : 'bg-slate-700'}`} />
+    <span
+      key={i}
+      className={`inline-block w-1.5 h-1.5 rounded-full mx-px ${
+        i < n ? 'bg-amber-accent' : 'bg-slate-700'
+      }`}
+    />
   ));
 
 export default function CaseList({
   cases,
-  isPurchased,
   solvedCases,
 }: {
   cases: Case[];
-  isPurchased: boolean;
   solvedCases: string[];
 }) {
   return (
     <div className="grid sm:grid-cols-2 gap-4">
       {cases.map((c, idx) => {
         const isSolved = solvedCases.includes(c.id);
-        const isLocked = IS_FREE_MODE
-          ? !!c.comingSoon
-          : c.comingSoon || (!c.isFreePreview && !isPurchased);
         const ComingSoon = !!c.comingSoon;
 
         return (
@@ -61,26 +60,22 @@ export default function CaseList({
                 </h3>
                 <p className="text-xs text-slate-300">— {c.subtitle}</p>
                 <div className="flex items-center gap-2 mt-2 text-[10px] text-slate-500">
-                  <span>難易度</span>{difficultyDots(c.difficulty)}
+                  <span>難易度</span>
+                  {difficultyDots(c.difficulty)}
                   <span className="ml-auto">⏱ 約{c.estimatedMinutes}分</span>
                 </div>
               </div>
             </div>
 
-            <p className="text-sm text-slate-300 mt-3 leading-relaxed line-clamp-3">{c.shortSummary}</p>
+            <p className="text-sm text-slate-300 mt-3 leading-relaxed line-clamp-3">
+              {c.shortSummary}
+            </p>
 
             <div className="mt-3">
               {ComingSoon ? (
                 <div className="w-full px-3 py-2 rounded-lg bg-slate-900 text-slate-500 text-sm text-center border border-dashed border-slate-700">
                   続報をお待ちください
                 </div>
-              ) : isLocked ? (
-                <Link
-                  href="/purchase"
-                  className="block w-full px-3 py-2 rounded-lg bg-slate-800 text-slate-300 text-sm text-center hover:bg-slate-700 transition"
-                >
-                  🔒 購入で解放
-                </Link>
               ) : (
                 <Link
                   href={`/case/${c.id}`}

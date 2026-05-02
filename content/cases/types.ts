@@ -107,7 +107,5 @@ export type Case = {
   acts: Act[];
   acquiredSkills: string[];
   badge: DetectiveBadge;
-  isFreePreview: boolean;
-  freeUntilAct: number;
   comingSoon?: boolean;
 };
