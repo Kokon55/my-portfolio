@@ -11,34 +11,88 @@ export default function TrueScoreReveal({ influencers }: { influencers: Influenc
   const computed = influencers.map((inf) => {
     const avgLikes = mean(inf.posts.map((p) => p.likes));
     const realFollowers = Math.round(inf.followers * (1 - inf.botRatio));
-    const realLikes = Math.round(avgLikes * (1 - inf.botRatio * 0.95)); // bot もごく一部は反応する設定
+    const realLikes = Math.round(avgLikes * (1 - inf.botRatio * 0.95));
     const apparentRate = avgLikes / inf.followers;
     const realRate = realFollowers > 0 ? realLikes / realFollowers : 0;
     return { inf, avgLikes, realFollowers, realLikes, apparentRate, realRate };
   });
 
+  const maxRealRate = Math.max(...computed.map((c) => c.realRate), 0.001);
+
   return (
     <div className="space-y-3">
-      <div className="grid sm:grid-cols-2 gap-3">
-        {computed.map(({ inf, avgLikes, realFollowers, realLikes, apparentRate, realRate }) => (
-          <div key={inf.handle} className="rounded-xl bg-slate-950/80 border border-slate-800 p-4 space-y-1.5">
-            <div className="font-semibold text-slate-100">{inf.displayName}</div>
-            <Row k="表示フォロワー" v={inf.followers.toLocaleString()} />
-            <Row k="表示エンゲージ率" v={`${(apparentRate * 100).toFixed(1)}%`} muted />
+      {/* 統合比較テーブル */}
+      <div className="rounded-xl bg-slate-950/70 border border-slate-800 overflow-hidden">
+        <table className="w-full text-xs sm:text-sm">
+          <thead>
+            <tr className="bg-slate-900/80 text-[11px] text-slate-400 uppercase tracking-widest">
+              <th className="px-2 py-2 text-left font-normal">指標</th>
+              {computed.map((c, idx) => (
+                <th
+                  key={c.inf.handle}
+                  className="px-2 py-2 text-right font-semibold"
+                  style={{ color: idx === 0 ? '#3b82f6' : '#f59e0b' }}
+                >
+                  {c.inf.displayName}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="text-slate-200">
+            <tr className="border-t border-slate-800">
+              <td className="px-2 py-1.5 text-slate-400">表示フォロワー</td>
+              {computed.map((c) => (
+                <td key={c.inf.handle} className="px-2 py-1.5 text-right">
+                  {c.inf.followers.toLocaleString()}
+                </td>
+              ))}
+            </tr>
+            <tr className="border-t border-slate-800">
+              <td className="px-2 py-1.5 text-slate-400">表示エンゲージ率</td>
+              {computed.map((c) => (
+                <td key={c.inf.handle} className="px-2 py-1.5 text-right text-slate-500 line-through">
+                  {(c.apparentRate * 100).toFixed(1)}%
+                </td>
+              ))}
+            </tr>
             {revealed && (
               <>
-                <div className="border-t border-rose-900/40 my-2" />
-                <Row k="bot 比率" v={`${(inf.botRatio * 100).toFixed(0)}%`} bad={inf.botRatio > 0.3} />
-                <Row k="実フォロワー" v={realFollowers.toLocaleString()} />
-                <Row
-                  k="真のエンゲージ率"
-                  v={`${(realRate * 100).toFixed(1)}%`}
-                  highlight
-                />
+                <tr className="border-t border-rose-900/40 bg-rose-950/20">
+                  <td className="px-2 py-1.5 text-rose-300">bot 比率</td>
+                  {computed.map((c) => (
+                    <td
+                      key={c.inf.handle}
+                      className={`px-2 py-1.5 text-right font-semibold ${
+                        c.inf.botRatio > 0.3 ? 'text-rose-400' : 'text-emerald-300'
+                      }`}
+                    >
+                      {(c.inf.botRatio * 100).toFixed(0)}%
+                    </td>
+                  ))}
+                </tr>
+                <tr className="border-t border-slate-800">
+                  <td className="px-2 py-1.5 text-slate-400">実フォロワー(bot除く)</td>
+                  {computed.map((c) => (
+                    <td key={c.inf.handle} className="px-2 py-1.5 text-right">
+                      {c.realFollowers.toLocaleString()}
+                    </td>
+                  ))}
+                </tr>
+                <tr className="border-t border-amber-700/40 bg-amber-950/20">
+                  <td className="px-2 py-1.5 text-amber-accent font-semibold">真のエンゲージ率</td>
+                  {computed.map((c) => (
+                    <td
+                      key={c.inf.handle}
+                      className="px-2 py-1.5 text-right font-bold text-amber-accent text-base"
+                    >
+                      {(c.realRate * 100).toFixed(1)}%
+                    </td>
+                  ))}
+                </tr>
               </>
             )}
-          </div>
-        ))}
+          </tbody>
+        </table>
       </div>
 
       {!revealed ? (
@@ -49,27 +103,52 @@ export default function TrueScoreReveal({ influencers }: { influencers: Influenc
           🔓 bot を除いて、真の数字を暴く
         </button>
       ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-xl bg-rose-950/30 border border-rose-800/60 p-4 text-sm text-rose-100 leading-relaxed"
-        >
-          <strong className="text-amber-accent">真相:</strong> Aurora の真エンゲージ率は2%以下、みなりは10%。みなりが Aurora の <b>3倍以上</b> 影響力がある。フォロワー10万という数字に、500万円が吸い込まれた。
-        </motion.div>
-      )}
-    </div>
-  );
-}
+        <>
+          {/* 比較バー */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-xl bg-slate-950/70 border border-slate-800 p-4"
+          >
+            <div className="text-[11px] text-slate-500 mb-2">
+              真の影響力(bot を除いた実エンゲージ率)
+            </div>
+            <div className="space-y-3">
+              {computed.map((c, idx) => (
+                <div key={c.inf.handle}>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span style={{ color: idx === 0 ? '#3b82f6' : '#f59e0b' }} className="font-semibold">
+                      {c.inf.displayName}
+                    </span>
+                    <span className="font-bold text-amber-accent">
+                      {(c.realRate * 100).toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="h-4 rounded-full bg-slate-800 overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(c.realRate / maxRealRate) * 100}%` }}
+                      transition={{ duration: 0.9, delay: idx * 0.2 }}
+                      className="h-full rounded-full"
+                      style={{ backgroundColor: idx === 0 ? '#3b82f6' : '#f59e0b' }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
 
-function Row({ k, v, muted, highlight, bad }: { k: string; v: string; muted?: boolean; highlight?: boolean; bad?: boolean }) {
-  return (
-    <div className="flex justify-between text-sm">
-      <span className="text-slate-400">{k}</span>
-      <span className={
-        highlight ? 'text-amber-accent font-bold' :
-        bad ? 'text-rose-400 font-semibold' :
-        muted ? 'text-slate-500 line-through' : 'text-slate-100'
-      }>{v}</span>
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="rounded-xl bg-rose-950/30 border border-rose-800/60 p-4 text-sm text-rose-100 leading-relaxed"
+          >
+            <strong className="text-amber-accent">真相:</strong> Aurora の真エンゲージ率は2%以下、みなりは10%。
+            みなりが Aurora の <b>3倍以上</b> 影響力がある。フォロワー10万という数字に、500万円が吸い込まれた。
+          </motion.div>
+        </>
+      )}
     </div>
   );
 }
