@@ -24,7 +24,34 @@ export type InteractionConfig =
   | { kind: 'slider_estimate'; question: string; min: number; max: number; step: number; correctAnswer: number; tolerance: number; unit: string; correctFeedback: string; wrongFeedback: string }
   | { kind: 'sns_profile'; profile: SnsProfile }
   | { kind: 'gacha_screen'; results: ('SSR' | 'SR' | 'R' | 'N')[] }
-  | { kind: 'true_score'; influencers: InfluencerData[] };
+  | { kind: 'true_score'; influencers: InfluencerData[] }
+  | {
+      kind: 'outlier_spotter';
+      question: string;
+      threshold: number;
+      posts: { id: string; likes: number; date: string; emoji: string; caption: string }[];
+      successFeedback?: string;
+      partialFeedback?: string;
+    }
+  | {
+      kind: 'formula_builder';
+      question: string;
+      segments: (
+        | { kind: 'text'; text: string }
+        | { kind: 'op'; op: string }
+        | { kind: 'slot'; id: string }
+      )[];
+      chips: { id: string; label: string; correctSlot: string }[];
+      successFeedback: string;
+      failFeedback: string;
+    }
+  | {
+      kind: 'evidence_matcher';
+      question: string;
+      scenarios: { id: string; label: string; correctProbId: string }[];
+      probabilities: { id: string; label: string }[];
+      successFeedback: string;
+    };
 
 export type InfluencerData = {
   handle: string;

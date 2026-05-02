@@ -11,6 +11,9 @@ import BinomialExplorer from './BinomialExplorer';
 import ChoiceQuestion from './ChoiceQuestion';
 import SliderEstimate from './SliderEstimate';
 import TrueScoreReveal from './TrueScoreReveal';
+import OutlierSpotter from './OutlierSpotter';
+import FormulaBuilder from './FormulaBuilder';
+import EvidenceMatcher from './EvidenceMatcher';
 
 export default function InteractionRenderer({
   interaction,
@@ -53,6 +56,35 @@ export default function InteractionRenderer({
       );
     case 'true_score':
       return <TrueScoreReveal influencers={interaction.influencers} />;
+    case 'outlier_spotter':
+      return (
+        <OutlierSpotter
+          posts={interaction.posts}
+          threshold={interaction.threshold}
+          question={interaction.question}
+          successFeedback={interaction.successFeedback}
+          partialFeedback={interaction.partialFeedback}
+        />
+      );
+    case 'formula_builder':
+      return (
+        <FormulaBuilder
+          question={interaction.question}
+          segments={interaction.segments}
+          chips={interaction.chips}
+          successFeedback={interaction.successFeedback}
+          failFeedback={interaction.failFeedback}
+        />
+      );
+    case 'evidence_matcher':
+      return (
+        <EvidenceMatcher
+          question={interaction.question}
+          scenarios={interaction.scenarios}
+          probabilities={interaction.probabilities}
+          successFeedback={interaction.successFeedback}
+        />
+      );
     default:
       return null;
   }

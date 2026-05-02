@@ -152,6 +152,31 @@ const gachaCase: Case = {
             'P(X = k) = \\binom{n}{k} p^k (1-p)^{n-k}',
         },
         {
+          id: 'i-01b',
+          type: 'interactive',
+          content: '🛠 「100連で 0個」の確率を、簡略式で組み立てよう。下のチップを正しい場所に配置せよ。',
+          interaction: {
+            kind: 'formula_builder',
+            question: '「100回引いて、0回も出ない」確率の式は?',
+            segments: [
+              { kind: 'text', text: 'P(0個) =' },
+              { kind: 'slot', id: 'base' },
+              { kind: 'op', op: '^' },
+              { kind: 'slot', id: 'exp' },
+            ],
+            chips: [
+              { id: 'c1', label: '(1 − p)', correctSlot: 'base' },
+              { id: 'c2', label: 'n', correctSlot: 'exp' },
+              { id: 'c3', label: 'p', correctSlot: '__none__' },
+              { id: 'c4', label: 'k', correctSlot: '__none__' },
+            ],
+            successFeedback:
+              '正解。(1 − p)^n。「外す確率を、n 回連続で引く」と考えれば直感的だ。p=0.01, n=100 で (0.99)^100 ≈ 0.366。',
+            failFeedback:
+              '違う。「外す」確率 = (1 − p)。それが n 回連続で起こる確率を計算する。',
+          },
+        },
+        {
           id: 'i-02',
           type: 'narrative',
           speaker: 'detective',
@@ -164,6 +189,29 @@ const gachaCase: Case = {
           speaker: 'detective',
           content:
             'つまり、3人に1人は SSR ゼロ。これは仕様通りだ——ただし、表記には書かれていない。',
+        },
+        {
+          id: 'i-03b',
+          type: 'interactive',
+          content: '🎯 君の番だ。下のシナリオに「正しい確率」をタップで結びつけろ。',
+          interaction: {
+            kind: 'evidence_matcher',
+            question: '排出率1%・100連で、それぞれの結果が起こる確率を当ててください',
+            scenarios: [
+              { id: 's1', label: 'SSRが 0個 出る確率', correctProbId: 'p2' },
+              { id: 's2', label: 'SSRが ちょうど1個 出る確率', correctProbId: 'p3' },
+              { id: 's3', label: 'SSRが 2個以上 出る確率', correctProbId: 'p1' },
+              { id: 's4', label: 'SSRが 5個以上 出る確率(超強運)', correctProbId: 'p4' },
+            ],
+            probabilities: [
+              { id: 'p1', label: '約 26.4%' },
+              { id: 'p2', label: '約 36.6%' },
+              { id: 'p3', label: '約 37.0%' },
+              { id: 'p4', label: '約 0.3%' },
+            ],
+            successFeedback:
+              '正解。ほぼ同じ確率で「0個」と「1個」が起こる。これが二項分布の姿だ。佐藤さんの「100連で0個」は、3人に1人が引く、ごく普通の結果。',
+          },
         },
         {
           id: 'i-04',
