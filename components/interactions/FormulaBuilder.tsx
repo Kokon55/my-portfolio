@@ -20,6 +20,7 @@ type Props = {
   chips: Chip[];
   successFeedback: string;
   failFeedback: string;
+  onCorrect?: () => void;
 };
 
 export default function FormulaBuilder({
@@ -28,6 +29,7 @@ export default function FormulaBuilder({
   chips,
   successFeedback,
   failFeedback,
+  onCorrect,
 }: Props) {
   // slotId → chipId
   const [placement, setPlacement] = useState<Record<string, string>>({});
@@ -62,6 +64,11 @@ export default function FormulaBuilder({
 
   const submit = () => {
     setSubmitted(true);
+    const allCorrectOnSubmit = slots.every((s) => {
+      const placedChip = chips.find((c) => c.id === placement[s.id]);
+      return placedChip?.correctSlot === s.id;
+    });
+    if (allCorrectOnSubmit) onCorrect?.();
   };
 
   const reset = () => {

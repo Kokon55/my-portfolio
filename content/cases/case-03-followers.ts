@@ -365,12 +365,81 @@ const followerCase: Case = {
           content:
             '探偵さん、ありがとうございます…!事務所と話してきます…!',
         },
+        // ───── ボス問題:3問連続 ─────
+        {
+          id: 'sol-boss-intro',
+          type: 'narrative',
+          speaker: 'detective',
+          content:
+            '【最終試験】ここからは「ボス問題」だ。時系列分析の3連戦。これが解ければ、君は真の時系列探偵だ。',
+        },
+        {
+          id: 'sol-boss-01',
+          type: 'interactive',
+          content:
+            '【ボス問題 1/3】データ {100, 200, 300, 400, 500} に対して窓3の単純移動平均を計算する。第3週の移動平均(=W1, W2, W3 の平均)は?',
+          interaction: {
+            kind: 'choice',
+            question: '正しい値を選んでください',
+            options: [
+              { label: '200', isCorrect: true, feedback: '正解。(100 + 200 + 300) ÷ 3 = 200。窓3の移動平均は直近3点の平均。' },
+              { label: '300', isCorrect: false, feedback: '違う。それは中央の値。窓3の移動平均なら (100+200+300)/3 = 200。' },
+              { label: '100', isCorrect: false, feedback: '違う。最古の値ではない。直近3点の平均を取る。' },
+              { label: '500', isCorrect: false, feedback: '違う。最新値ではない。直近3点の平均を取る。' },
+            ],
+          },
+          hints: {
+            level1: '移動平均は「直近 N 点の平均」。',
+            level2: '窓3 なら直近3点を足して3で割る。',
+            level3: 'W1=100, W2=200, W3=300。(100+200+300)/3 = 200。',
+          },
+        },
+        {
+          id: 'sol-boss-02',
+          type: 'interactive',
+          content: '【ボス問題 2/3】時系列の Z-score の正しい定義式は?',
+          interaction: {
+            kind: 'choice',
+            question: '正しい式を選んでください',
+            options: [
+              { label: 'z = (xₜ − MAₜ) / σₜ', isCorrect: true, feedback: '正解。「観測値から移動平均を引いて、標準偏差で割る」。これが時系列の Z-score。' },
+              { label: 'z = xₜ × MAₜ', isCorrect: false, feedback: '違う。観測値と移動平均を掛け算しない。差を取って標準偏差で正規化する。' },
+              { label: 'z = MAₜ / σₜ', isCorrect: false, feedback: '違う。観測値が出てきていない。Z-score は「観測値が平均からどれだけ離れているか」を測る。' },
+              { label: 'z = √(xₜ − MAₜ)', isCorrect: false, feedback: '違う。√ は使わない。標準偏差で割って正規化する。' },
+            ],
+          },
+          hints: {
+            level1: 'Z-score は「平均から何標準偏差離れているか」。',
+            level2: '「(値 − 平均) ÷ 標準偏差」の形をしている。',
+            level3: '時系列では「平均」は移動平均、「標準偏差」は移動標準偏差で代用する。',
+          },
+        },
+        {
+          id: 'sol-boss-03',
+          type: 'interactive',
+          content: '【ボス問題 3/3】|Z| > 2 の判定について最も適切な記述は?',
+          interaction: {
+            kind: 'choice',
+            question: '|Z| > 2 を異常と判定する根拠として最も適切なのは?',
+            options: [
+              { label: '正規分布なら ±2σ範囲に約95%のデータが入るため、外側の約5%が「異常」と見なせる', isCorrect: true, feedback: '正解。正規分布の経験則「68-95-99.7」より、±2σの外側は約5%。これが「異常」判定の根拠。' },
+              { label: 'Z = 2 は数学的に最大値だから', isCorrect: false, feedback: '違う。Z-score は無限に大きくなりうる。経験則の閾値として 2 を使うだけ。' },
+              { label: '計算が簡単だから', isCorrect: false, feedback: '違う。理由はそこではなく、正規分布の確率分布に基づく。' },
+              { label: 'すべての分布で必ず Z>2 が異常になる', isCorrect: false, feedback: '違う。正規分布を仮定したときの目安。分布によっては別の閾値を使う。' },
+            ],
+          },
+          hints: {
+            level1: '「68-95-99.7」のルールを思い出そう。',
+            level2: '正規分布なら ±1σ で68%、±2σ で95%、±3σ で99.7%。',
+            level3: '±2σ の外側は約5%(両側)。これが「めったに起こらない=異常」の根拠。',
+          },
+        },
         {
           id: 'sol-10',
           type: 'narrative',
           speaker: 'detective',
           content:
-            '事件 No.003 — 解決。「時系列探偵」の称号を授ける。',
+            '事件 No.003 — 完全解決。「時系列探偵」の称号を授ける。',
         },
       ],
     },

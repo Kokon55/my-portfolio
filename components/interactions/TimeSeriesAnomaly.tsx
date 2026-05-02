@@ -28,6 +28,7 @@ type Props = {
   successFeedback: string;
   partialFeedback: string;
   onComplete?: (correct: number, total: number, falsePositive: number) => void;
+  onCorrect?: () => void;
 };
 
 export default function TimeSeriesAnomaly({
@@ -37,6 +38,7 @@ export default function TimeSeriesAnomaly({
   successFeedback,
   partialFeedback,
   onComplete,
+  onCorrect,
 }: Props) {
   const [flagged, setFlagged] = useState<Set<number>>(new Set());
   const [submitted, setSubmitted] = useState(false);
@@ -87,6 +89,14 @@ export default function TimeSeriesAnomaly({
       else fp++;
     });
     if (onComplete) onComplete(correct, trueSet.size, fp);
+    if (correct === trueSet.size && fp === 0) {
+      onCorrect?.();
+    }
+  };
+
+  const retry = () => {
+    setSubmitted(false);
+    setFlagged(new Set());
   };
 
   const correctCount = Array.from(flagged).filter((i) => trueSet.has(i)).length;
@@ -214,6 +224,14 @@ export default function TimeSeriesAnomaly({
             <div className="mt-3 text-xs text-slate-300 bg-slate-950/40 rounded p-2">
               📊 真の異常判定:|Z-score| &gt; 2(±2σ範囲を逸脱した週)
             </div>
+            {!isPerfect && (
+              <button
+                onClick={retry}
+                className="mt-3 px-3 py-1.5 rounded bg-slate-800 text-slate-200 text-xs"
+              >
+                もう一度挑戦
+              </button>
+            )}
           </motion.div>
         </AnimatePresence>
       )}

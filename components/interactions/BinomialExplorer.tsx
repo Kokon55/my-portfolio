@@ -4,11 +4,40 @@ import { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { binomialDistribution, probabilityOfZeroHits, probabilityOfAtLeastOne } from '@/lib/stats';
 
-type Props = { defaultN: number; defaultP: number };
+type Props = { defaultN: number; defaultP: number; onCorrect?: () => void };
 
-export default function BinomialExplorer({ defaultN, defaultP }: Props) {
+const REQUIRED_CHANGES = 3;
+
+export default function BinomialExplorer({ defaultN, defaultP, onCorrect }: Props) {
   const [n, setN] = useState(defaultN);
   const [p, setP] = useState(defaultP);
+  const [nChanges, setNChanges] = useState(0);
+  const [pChanges, setPChanges] = useState(0);
+  const [signaled, setSignaled] = useState(false);
+
+  const checkComplete = (nc: number, pc: number) => {
+    if (!signaled && nc >= REQUIRED_CHANGES && pc >= REQUIRED_CHANGES) {
+      setSignaled(true);
+      onCorrect?.();
+    }
+  };
+
+  const updateN = (v: number) => {
+    setN(v);
+    setNChanges((c) => {
+      const nc = c + 1;
+      checkComplete(nc, pChanges);
+      return nc;
+    });
+  };
+  const updateP = (v: number) => {
+    setP(v);
+    setPChanges((c) => {
+      const nc = c + 1;
+      checkComplete(nChanges, nc);
+      return nc;
+    });
+  };
 
   const data = useMemo(() => {
     const dist = binomialDistribution(n, p);
@@ -22,9 +51,14 @@ export default function BinomialExplorer({ defaultN, defaultP }: Props) {
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
-        <Slider label="試行回数 n" value={n} min={10} max={500} step={10} onChange={setN} display={String(n)} />
-        <Slider label="確率 p" value={p * 1000} min={1} max={100} step={1} onChange={(v) => setP(v / 1000)} display={`${(p * 100).toFixed(1)}%`} />
+        <Slider label="試行回数 n" value={n} min={10} max={500} step={10} onChange={updateN} display={String(n)} />
+        <Slider label="確率 p" value={p * 1000} min={1} max={100} step={1} onChange={(v) => updateP(v / 1000)} display={`${(p * 100).toFixed(1)}%`} />
       </div>
+      {!signaled && (
+        <div className="text-[11px] text-amber-200 bg-amber-950/30 border border-amber-800/40 rounded px-2 py-1.5">
+          ⏳ n と p をそれぞれ {REQUIRED_CHANGES} 回以上動かして、分布の形が変わる様子を観察しよう (n: {nChanges}/{REQUIRED_CHANGES}, p: {pChanges}/{REQUIRED_CHANGES})
+        </div>
+      )}
       <div className="grid grid-cols-3 gap-2 text-center">
         <Stat label="期待値 (np)" value={(n * p).toFixed(2)} />
         <Stat label="0個の確率" value={`${(zero * 100).toFixed(1)}%`} accent />

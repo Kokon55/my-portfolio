@@ -16,6 +16,7 @@ type Props = {
   scenarios: Scenario[];
   probabilities: Probability[];
   successFeedback: string;
+  onCorrect?: () => void;
 };
 
 export default function EvidenceMatcher({
@@ -23,6 +24,7 @@ export default function EvidenceMatcher({
   scenarios,
   probabilities,
   successFeedback,
+  onCorrect,
 }: Props) {
   const [pairs, setPairs] = useState<Record<string, string>>({}); // scenarioId → probId
   const [pickedProb, setPickedProb] = useState<string | null>(null);
@@ -137,7 +139,11 @@ export default function EvidenceMatcher({
 
       {!submitted ? (
         <button
-          onClick={() => setSubmitted(true)}
+          onClick={() => {
+            setSubmitted(true);
+            const allCorrectOnSubmit = scenarios.every((s) => pairs[s.id] === s.correctProbId);
+            if (allCorrectOnSubmit) onCorrect?.();
+          }}
           disabled={!allMatched}
           className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-amber-accent to-yellow-600 text-slate-900 font-bold disabled:opacity-40 active:scale-95 transition"
         >

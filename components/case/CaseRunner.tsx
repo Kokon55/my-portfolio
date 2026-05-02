@@ -38,6 +38,8 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
   const [actIdx, setActIdx] = useState(0);
   const [stepIdx, setStepIdx] = useState(0);
   const [bgmStarted, setBgmStarted] = useState(false);
+  // 完了済みステップ ID(インタラクション正解時に追加される)
+  const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
 
   const act = caseDef.acts[actIdx];
   const step = act?.steps[stepIdx];
@@ -46,6 +48,22 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
   let progressCount = 0;
   for (let a = 0; a < actIdx; a++) progressCount += caseDef.acts[a].steps.length;
   progressCount += stepIdx + 1;
+
+  // 「次へ」を押すための条件:
+  // - インタラクティブステップは正解 (onCorrect 発火) が必要
+  // - それ以外は常に押せる
+  const isCurrentInteractive = step?.type === 'interactive' && !!step?.interaction;
+  const isStepUnlocked = !isCurrentInteractive || completedSteps.has(step?.id ?? '');
+
+  const markStepComplete = () => {
+    if (!step) return;
+    setCompletedSteps((prev) => {
+      if (prev.has(step.id)) return prev;
+      const next = new Set(prev);
+      next.add(step.id);
+      return next;
+    });
+  };
 
   useEffect(() => {
     setProgress(caseDef.id, actIdx, stepIdx);
@@ -71,6 +89,7 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
 
   const goNext = () => {
     if (!act) return;
+    if (!isStepUnlocked) return; // 解錠されていなければ進めない
     // ユーザーの最初の操作で BGM 起動許可(ブラウザの自動再生制限への対応)
     if (!bgmStarted) {
       setBgmStarted(true);
@@ -143,7 +162,12 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
       {/* 本文 */}
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-4 pb-32">
         <AnimatePresence mode="wait">
-          <CaseStep key={`${actIdx}-${stepIdx}`} step={step} client={caseDef.client} />
+          <CaseStep
+            key={`${actIdx}-${stepIdx}`}
+            step={step}
+            client={caseDef.client}
+            onComplete={markStepComplete}
+          />
         </AnimatePresence>
       </main>
 
@@ -159,9 +183,18 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
           </button>
           <button
             onClick={goNext}
-            className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-amber-accent to-yellow-600 text-slate-900 font-bold active:scale-95 transition shadow-lg shadow-amber-500/20"
+            disabled={!isStepUnlocked}
+            className={`flex-1 px-4 py-3 rounded-xl font-bold transition ${
+              isStepUnlocked
+                ? 'bg-gradient-to-r from-amber-accent to-yellow-600 text-slate-900 active:scale-95 shadow-lg shadow-amber-500/20'
+                : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+            }`}
           >
-            {isLastStep ? '🏆 事件を解決する' : '次へ →'}
+            {!isStepUnlocked
+              ? '⚠ 問題を解いてください'
+              : isLastStep
+              ? '🏆 事件を解決する'
+              : '次へ →'}
           </button>
         </div>
       </nav>

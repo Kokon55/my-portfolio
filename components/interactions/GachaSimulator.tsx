@@ -5,19 +5,35 @@ import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, ReferenceLine, Tooltip } from 'recharts';
 import { simulateGachaMany, mean, binomialDistribution } from '@/lib/stats';
 
-type Props = { rate: number; defaultPulls: number };
+type Props = { rate: number; defaultPulls: number; onCorrect?: () => void };
 
-export default function GachaSimulator({ rate, defaultPulls }: Props) {
+const PULLS_REQUIRED = 3; // 最低 3 回引かないと「体感」したと言えない
+
+export default function GachaSimulator({ rate, defaultPulls, onCorrect }: Props) {
   const [pulls, setPulls] = useState<10 | 100 | 1000>(defaultPulls === 10 ? 10 : defaultPulls === 1000 ? 1000 : 100);
   const [history, setHistory] = useState<number[]>([]);
   const [seed, setSeed] = useState(1);
   const [lastResult, setLastResult] = useState<number | null>(null);
+  const [pullCount, setPullCount] = useState(0);
+  const [signaled, setSignaled] = useState(false);
+
+  const checkComplete = (count: number) => {
+    if (!signaled && count >= PULLS_REQUIRED) {
+      setSignaled(true);
+      onCorrect?.();
+    }
+  };
 
   const pull = () => {
     const result = simulateGachaMany(1, pulls, rate, seed)[0];
     setLastResult(result);
     setHistory((h) => [...h, result]);
     setSeed((s) => s + 1);
+    setPullCount((c) => {
+      const nc = c + 1;
+      checkComplete(nc);
+      return nc;
+    });
   };
 
   const pull100Times = () => {
@@ -25,6 +41,11 @@ export default function GachaSimulator({ rate, defaultPulls }: Props) {
     setLastResult(results[results.length - 1]);
     setHistory((h) => [...h, ...results]);
     setSeed((s) => s + 100);
+    setPullCount((c) => {
+      const nc = c + 1;
+      checkComplete(nc);
+      return nc;
+    });
   };
 
   const reset = () => {
@@ -67,6 +88,12 @@ export default function GachaSimulator({ rate, defaultPulls }: Props) {
         ))}
         <div className="ml-auto text-xs text-slate-500">排出率 {(rate * 100).toFixed(1)}%</div>
       </div>
+
+      {!signaled && (
+        <div className="text-[11px] text-amber-200 bg-amber-950/30 border border-amber-800/40 rounded px-2 py-1.5">
+          ⏳ ガチャを {PULLS_REQUIRED} 回以上引いて結果のばらつきを体感しよう({pullCount}/{PULLS_REQUIRED})
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2">
         <button

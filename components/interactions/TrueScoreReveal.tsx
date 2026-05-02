@@ -5,8 +5,18 @@ import { motion } from 'framer-motion';
 import { mean } from '@/lib/stats';
 import type { InfluencerData } from '@/content/cases/types';
 
-export default function TrueScoreReveal({ influencers }: { influencers: InfluencerData[] }) {
+export default function TrueScoreReveal({
+  influencers,
+  onCorrect,
+}: {
+  influencers: InfluencerData[];
+  onCorrect?: () => void;
+}) {
   const [revealed, setRevealed] = useState(false);
+  const reveal = () => {
+    setRevealed(true);
+    onCorrect?.();
+  };
 
   const computed = influencers.map((inf) => {
     const avgLikes = mean(inf.posts.map((p) => p.likes));
@@ -97,7 +107,7 @@ export default function TrueScoreReveal({ influencers }: { influencers: Influenc
 
       {!revealed ? (
         <button
-          onClick={() => setRevealed(true)}
+          onClick={reveal}
           className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 text-white font-bold active:scale-95 transition"
         >
           🔓 bot を除いて、真の数字を暴く

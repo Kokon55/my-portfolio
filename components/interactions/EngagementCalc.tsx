@@ -6,8 +6,19 @@ import { mean, engagementRate, toPct } from '@/lib/stats';
 import type { InfluencerData } from '@/content/cases/types';
 
 // A vs B を 1 つの比較テーブル + 横棒グラフで一画面に。
-export default function EngagementCalc({ influencers }: { influencers: InfluencerData[] }) {
+export default function EngagementCalc({
+  influencers,
+  onCorrect,
+}: {
+  influencers: InfluencerData[];
+  onCorrect?: () => void;
+}) {
   const [revealed, setRevealed] = useState(false);
+
+  const reveal = () => {
+    setRevealed(true);
+    onCorrect?.();
+  };
 
   const rows = influencers.map((inf) => {
     const avgLikes = mean(inf.posts.map((p) => p.likes));
@@ -73,7 +84,7 @@ export default function EngagementCalc({ influencers }: { influencers: Influence
       {/* 計算ボタン */}
       {!revealed && (
         <button
-          onClick={() => setRevealed(true)}
+          onClick={reveal}
           className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-amber-accent to-yellow-600 text-slate-900 font-bold active:scale-95 transition"
         >
           🔍 エンゲージ率を計算して比較する

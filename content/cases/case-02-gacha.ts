@@ -434,12 +434,82 @@ const gachaCase: Case = {
           content:
             '探偵さん…ありがとうございます。これで、また衝動的に行動しそうになっても、踏みとどまれます。',
         },
+        // ───── ボス問題:3問連続 ─────
+        {
+          id: 'sol-boss-intro',
+          type: 'narrative',
+          speaker: 'detective',
+          content:
+            '【最終試験】ここからは「ボス問題」だ。確率の3連戦。これが解ければ、君は真のガチャ捜査官だ。',
+        },
+        {
+          id: 'sol-boss-01',
+          type: 'interactive',
+          content: '【ボス問題 1/3】排出率1%のガチャを100連回したとき、SSR が1個も出ない確率は約何%?',
+          interaction: {
+            kind: 'slider_estimate',
+            question: 'スライダーで推測してください',
+            min: 0,
+            max: 100,
+            step: 0.5,
+            correctAnswer: 36.6,
+            tolerance: 2,
+            unit: '%',
+            correctFeedback: '正解。約36.6%。3人に1人がゼロ。',
+            wrongFeedback: '違う。(1 − 0.01)^100 = 0.99^100 ≈ 0.366 = 36.6%。',
+          },
+          hints: {
+            level1: '「外す確率」が n 回連続で起こる確率を計算する。',
+            level2: '式は (1 − p)^n。ここでは (1 − 0.01)^100 = 0.99^100。',
+            level3: '0.99^100 ≈ 0.366 = 36.6%。3人に1人がゼロ個。',
+          },
+        },
+        {
+          id: 'sol-boss-02',
+          type: 'interactive',
+          content: '【ボス問題 2/3】二項分布 B(100, 0.01) の平均と分散の組み合わせとして正しいのは?',
+          interaction: {
+            kind: 'choice',
+            question: '正しい組み合わせを選んでください',
+            options: [
+              { label: '平均 = 1、分散 = 0.99', isCorrect: true, feedback: '正解。E(X) = np = 100 × 0.01 = 1。V(X) = np(1−p) = 100 × 0.01 × 0.99 = 0.99。' },
+              { label: '平均 = 100、分散 = 1', isCorrect: false, feedback: '違う。E(X) = np。100 × 0.01 = 1 が正しい。' },
+              { label: '平均 = 0.01、分散 = 1', isCorrect: false, feedback: '違う。p ではなく np。' },
+              { label: '平均 = 1、分散 = 1', isCorrect: false, feedback: '惜しい。平均は正しいが、分散は np(1−p) = 0.99。' },
+            ],
+          },
+          hints: {
+            level1: '二項分布の平均は np、分散は np(1 − p)。',
+            level2: 'n = 100, p = 0.01 なので、np = 1。',
+            level3: 'np(1 − p) = 100 × 0.01 × 0.99 = 0.99。標準偏差は √0.99 ≈ 0.995。',
+          },
+        },
+        {
+          id: 'sol-boss-03',
+          type: 'interactive',
+          content: '【ボス問題 3/3】「全 SSR の合計排出率1%」の表記でも、目当てのキャラに絞ると別の話。SSR が10種類あって均等排出のとき、目当てのキャラ1体の排出率は?',
+          interaction: {
+            kind: 'choice',
+            question: '目当てキャラ1体の排出確率は?',
+            options: [
+              { label: '0.1% (= 1% ÷ 10)', isCorrect: true, feedback: '正解。1% ÷ 10 = 0.1%。100連で目当てが1個でも出る確率はわずか約 9.5%。これが「確率表記の罠」だ。' },
+              { label: '1% (どのキャラも同じ確率)', isCorrect: false, feedback: '違う。「全 SSR で1%」なので、10種類で割る必要がある。' },
+              { label: '10% (10種類あるから)', isCorrect: false, feedback: '逆。10種類あるから1体あたりは小さくなる。' },
+              { label: '0.01% (1% を100で割る)', isCorrect: false, feedback: '違う。10種類で割る。' },
+            ],
+          },
+          hints: {
+            level1: '「全SSR」と「目当てキャラ」は別々に考える。',
+            level2: '10種類が均等排出なら、1種類あたりは合計排出率 ÷ 10。',
+            level3: '1% ÷ 10 = 0.1%。100連で目当てが0個の確率は (0.999)^100 ≈ 90.5%。',
+          },
+        },
         {
           id: 'sol-09',
           type: 'narrative',
           speaker: 'detective',
           content:
-            '事件 No.002 — 解決。ガチャ捜査官の称号を授ける。',
+            '事件 No.002 — 完全解決。「ガチャ捜査官」の称号を授ける。',
         },
       ],
     },

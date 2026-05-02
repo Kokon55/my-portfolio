@@ -23,6 +23,7 @@ type Props = {
   successFeedback?: string;
   partialFeedback?: string;
   onComplete?: (correct: number, total: number, falsePositive: number) => void;
+  onCorrect?: () => void; // 100%正解時に発火
 };
 
 export default function OutlierSpotter({
@@ -32,6 +33,7 @@ export default function OutlierSpotter({
   successFeedback = '見事だ。バズった投稿を正確に特定した。あとはこの「平均を吊り上げた数投稿」を除けば、本当の実力が見えてくる。',
   partialFeedback = '惜しい。バズ投稿(平均から大きく離れた値)を見抜くのが鍵だ。',
   onComplete,
+  onCorrect,
 }: Props) {
   const [flagged, setFlagged] = useState<Set<string>>(new Set());
   const [submitted, setSubmitted] = useState(false);
@@ -67,6 +69,16 @@ export default function OutlierSpotter({
       else falsePositive++;
     });
     if (onComplete) onComplete(correct, trueOutlierIds.size, falsePositive);
+    // 全外れ値を的中させ、誤検知ゼロのときだけ正解扱い
+    if (correct === trueOutlierIds.size && falsePositive === 0) {
+      onCorrect?.();
+    }
+  };
+
+  // 不正解だった場合の再挑戦
+  const retry = () => {
+    setSubmitted(false);
+    setFlagged(new Set());
   };
 
   const correctCount = Array.from(flagged).filter((id) => trueOutlierIds.has(id)).length;
@@ -157,6 +169,14 @@ export default function OutlierSpotter({
             <div className="mt-3 text-xs text-slate-300 bg-slate-950/40 rounded p-2">
               📊 真の外れ値判定:|Z-score| &gt; {threshold}(平均から標準偏差の{threshold}倍以上離れている)
             </div>
+            {!isPerfect && (
+              <button
+                onClick={retry}
+                className="mt-3 px-3 py-1.5 rounded bg-slate-800 text-slate-200 text-xs"
+              >
+                もう一度挑戦
+              </button>
+            )}
           </motion.div>
         </AnimatePresence>
       )}

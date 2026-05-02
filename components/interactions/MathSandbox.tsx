@@ -22,22 +22,51 @@ type Props = {
   task: string; // タスク文(発見してほしいパターン)
   successCheck?: (state: Record<string, number>) => boolean;
   successMessage?: string;
+  onCorrect?: () => void;
 };
 
-export default function MathSandbox({ scenario, task, successCheck, successMessage }: Props) {
+export default function MathSandbox({ scenario, task, successCheck, successMessage, onCorrect }: Props) {
   if (scenario.kind === 'bot_engagement') {
-    return <BotEngagementSandbox scenario={scenario} task={task} successCheck={successCheck} successMessage={successMessage} />;
+    return <BotEngagementSandbox scenario={scenario} task={task} successCheck={successCheck} successMessage={successMessage} onCorrect={onCorrect} />;
   }
   if (scenario.kind === 'binomial_shape') {
-    return <BinomialShapeSandbox scenario={scenario} task={task} successCheck={successCheck} successMessage={successMessage} />;
+    return <BinomialShapeSandbox scenario={scenario} task={task} successCheck={successCheck} successMessage={successMessage} onCorrect={onCorrect} />;
   }
-  return <LLNSandbox scenario={scenario} task={task} />;
+  return <LLNSandbox scenario={scenario} task={task} onCorrect={onCorrect} />;
 }
 
 // ─────────────── bot 比率サンドボックス ───────────────
+const SANDBOX_OPS_REQUIRED = 5;
+
+function useOpsTracker(onCorrect?: () => void) {
+  const [ops, setOps] = useState(0);
+  const [signaled, setSignaled] = useState(false);
+  const bump = () => {
+    setOps((o) => {
+      const no = o + 1;
+      if (!signaled && no >= SANDBOX_OPS_REQUIRED) {
+        setSignaled(true);
+        onCorrect?.();
+      }
+      return no;
+    });
+  };
+  return { ops, signaled, bump };
+}
+
+function OpsHint({ ops, signaled }: { ops: number; signaled: boolean }) {
+  if (signaled) return null;
+  return (
+    <div className="text-[11px] text-amber-200 bg-amber-950/30 border border-amber-800/40 rounded px-2 py-1.5">
+      ⏳ スライダーを {SANDBOX_OPS_REQUIRED} 回以上動かして、変化を観察しよう ({ops}/{SANDBOX_OPS_REQUIRED})
+    </div>
+  );
+}
+
 function BotEngagementSandbox({
-  scenario, task, successCheck, successMessage,
-}: { scenario: Extract<SandboxScenario, { kind: 'bot_engagement' }>; task: string; successCheck?: (s: Record<string, number>) => boolean; successMessage?: string; }) {
+  scenario, task, successCheck, successMessage, onCorrect,
+}: { scenario: Extract<SandboxScenario, { kind: 'bot_engagement' }>; task: string; successCheck?: (s: Record<string, number>) => boolean; successMessage?: string; onCorrect?: () => void; }) {
+  const { ops, signaled, bump } = useOpsTracker(onCorrect);
   const [botRatio, setBotRatio] = useState(0);
   const [followers, setFollowers] = useState(scenario.baseFollowers);
   const [likes, setLikes] = useState(scenario.baseLikes);
@@ -55,10 +84,12 @@ function BotEngagementSandbox({
       </div>
 
       <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-4 space-y-4">
-        <SliderRow label="フォロワー数" value={followers} min={1000} max={500000} step={1000} onChange={setFollowers} format={(v) => v.toLocaleString()} />
-        <SliderRow label="平均いいね数" value={likes} min={100} max={50000} step={100} onChange={setLikes} format={(v) => v.toLocaleString()} />
-        <SliderRow label="bot 比率" value={Math.round(botRatio * 100)} min={0} max={90} step={1} onChange={(v) => setBotRatio(v / 100)} format={(v) => `${v}%`} />
+        <SliderRow label="フォロワー数" value={followers} min={1000} max={500000} step={1000} onChange={(v) => { setFollowers(v); bump(); }} format={(v) => v.toLocaleString()} />
+        <SliderRow label="平均いいね数" value={likes} min={100} max={50000} step={100} onChange={(v) => { setLikes(v); bump(); }} format={(v) => v.toLocaleString()} />
+        <SliderRow label="bot 比率" value={Math.round(botRatio * 100)} min={0} max={90} step={1} onChange={(v) => { setBotRatio(v / 100); bump(); }} format={(v) => `${v}%`} />
       </div>
+
+      <OpsHint ops={ops} signaled={signaled} />
 
       {/* リアルタイム結果 */}
       <div className="grid grid-cols-2 gap-2">
@@ -105,8 +136,9 @@ function BotEngagementSandbox({
 
 // ─────────────── 二項分布サンドボックス ───────────────
 function BinomialShapeSandbox({
-  scenario, task, successCheck, successMessage,
-}: { scenario: Extract<SandboxScenario, { kind: 'binomial_shape' }>; task: string; successCheck?: (s: Record<string, number>) => boolean; successMessage?: string; }) {
+  scenario, task, successCheck, successMessage, onCorrect,
+}: { scenario: Extract<SandboxScenario, { kind: 'binomial_shape' }>; task: string; successCheck?: (s: Record<string, number>) => boolean; successMessage?: string; onCorrect?: () => void; }) {
+  const { ops, signaled, bump } = useOpsTracker(onCorrect);
   const [n, setN] = useState(scenario.nDefault);
   const [p, setP] = useState(scenario.pDefault);
 
@@ -130,9 +162,11 @@ function BinomialShapeSandbox({
       </div>
 
       <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-4 space-y-4">
-        <SliderRow label="試行回数 n" value={n} min={10} max={500} step={10} onChange={setN} format={(v) => `${v} 回`} />
-        <SliderRow label="確率 p" value={p * 1000} min={1} max={200} step={1} onChange={(v) => setP(v / 1000)} format={() => `${(p * 100).toFixed(1)}%`} />
+        <SliderRow label="試行回数 n" value={n} min={10} max={500} step={10} onChange={(v) => { setN(v); bump(); }} format={(v) => `${v} 回`} />
+        <SliderRow label="確率 p" value={p * 1000} min={1} max={200} step={1} onChange={(v) => { setP(v / 1000); bump(); }} format={() => `${(p * 100).toFixed(1)}%`} />
       </div>
+
+      <OpsHint ops={ops} signaled={signaled} />
 
       <div className="grid grid-cols-3 gap-2 text-center">
         <ResultBox label="期待値 np" value={expected.toFixed(2)} highlight />
@@ -172,8 +206,9 @@ function BinomialShapeSandbox({
 
 // ─────────────── 大数の法則サンドボックス ───────────────
 function LLNSandbox({
-  scenario, task,
-}: { scenario: Extract<SandboxScenario, { kind: 'law_of_large_numbers' }>; task: string; }) {
+  scenario, task, onCorrect,
+}: { scenario: Extract<SandboxScenario, { kind: 'law_of_large_numbers' }>; task: string; onCorrect?: () => void; }) {
+  const { ops, signaled, bump } = useOpsTracker(onCorrect);
   const [trials, setTrials] = useState(100);
   const [seed, setSeed] = useState(1);
 
@@ -205,14 +240,15 @@ function LLNSandbox({
       </div>
 
       <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-4 space-y-3">
-        <SliderRow label="試行回数" value={trials} min={10} max={5000} step={10} onChange={setTrials} format={(v) => `${v.toLocaleString()} 回`} />
+        <SliderRow label="試行回数" value={trials} min={10} max={5000} step={10} onChange={(v) => { setTrials(v); bump(); }} format={(v) => `${v.toLocaleString()} 回`} />
         <button
-          onClick={() => setSeed((s) => s + 1)}
+          onClick={() => { setSeed((s) => s + 1); bump(); }}
           className="w-full px-3 py-2 rounded-lg bg-slate-800 text-slate-200 text-sm"
         >
           🎲 もう一度試す(別の乱数で)
         </button>
       </div>
+      <OpsHint ops={ops} signaled={signaled} />
 
       <div className="grid grid-cols-3 gap-2 text-center">
         <ResultBox label="理論値" value={`${(scenario.rate * 100).toFixed(1)}%`} dim />

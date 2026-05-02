@@ -106,7 +106,10 @@ export type ActStep = {
   content: string;
   speaker?: 'client' | 'narrator' | 'player' | 'detective';
   interaction?: InteractionConfig;
+  // 旧:単一ヒント。後方互換のため残す。新規は hints を使う
   hint?: string;
+  // 段階的ヒント(3段階)。Level1 が最も控えめ、Level3 が最もネタバレ寄り
+  hints?: { level1: string; level2: string; level3: string };
   formula?: string; // KaTeX
   // 表情(セリフごとに切替)
   expression?: Expression;
