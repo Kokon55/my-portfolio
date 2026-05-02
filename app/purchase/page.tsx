@@ -1,13 +1,15 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useDetectiveStore } from '@/lib/store';
+import { IS_FREE_MODE } from '@/lib/config';
 
 function PurchaseInner() {
   const params = useSearchParams();
+  const router = useRouter();
   const success = params.get('success') === '1';
   const canceled = params.get('canceled') === '1';
   const successEmail = params.get('email');
@@ -22,9 +24,30 @@ function PurchaseInner() {
   const [error, setError] = useState<string | null>(null);
   const [magicLink, setMagicLink] = useState<string | null>(null);
 
+  // 無料公開モードでは購入ページを表示せず、トップへ
+  useEffect(() => {
+    if (IS_FREE_MODE) router.replace('/');
+  }, [router]);
+
   useEffect(() => {
     if (success && successEmail) setPurchased(successEmail);
   }, [success, successEmail, setPurchased]);
+
+  if (IS_FREE_MODE) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-paper">
+        <div className="text-center">
+          <p className="text-slate-300 mb-3">本作品は現在、無料で公開中です。</p>
+          <Link
+            href="/"
+            className="inline-block px-5 py-2.5 rounded-xl bg-amber-accent text-slate-900 font-bold"
+          >
+            事件簿へ
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   const checkout = async () => {
     setLoading(true);

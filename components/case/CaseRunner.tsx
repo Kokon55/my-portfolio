@@ -9,6 +9,7 @@ import ProgressBar from '../ui/ProgressBar';
 import PaywallModal from '../ui/PaywallModal';
 import { useDetectiveStore } from '@/lib/store';
 import { totalSteps } from '@/lib/progress';
+import { IS_FREE_MODE } from '@/lib/config';
 import type { Case } from '@/content/cases/types';
 
 const actLabel: Record<string, string> = {
@@ -39,8 +40,8 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
   const act = caseDef.acts[actIdx];
   const step = act?.steps[stepIdx];
 
-  const isLockedAct = !isPurchased && !caseDef.isFreePreview;
-  const isPaywalled = !isPurchased && actIdx >= caseDef.freeUntilAct;
+  const isLockedAct = IS_FREE_MODE ? false : !isPurchased && !caseDef.isFreePreview;
+  const isPaywalled = IS_FREE_MODE ? false : !isPurchased && actIdx >= caseDef.freeUntilAct;
 
   // 進捗の積み上げカウント
   let progressCount = 0;

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import ClientAvatar from '../characters/ClientAvatar';
+import { IS_FREE_MODE } from '@/lib/config';
 import type { Case } from '@/content/cases/types';
 
 const difficultyDots = (n: number) =>
@@ -23,7 +24,9 @@ export default function CaseList({
     <div className="grid sm:grid-cols-2 gap-4">
       {cases.map((c, idx) => {
         const isSolved = solvedCases.includes(c.id);
-        const isLocked = c.comingSoon || (!c.isFreePreview && !isPurchased);
+        const isLocked = IS_FREE_MODE
+          ? !!c.comingSoon
+          : c.comingSoon || (!c.isFreePreview && !isPurchased);
         const ComingSoon = !!c.comingSoon;
 
         return (
@@ -83,7 +86,7 @@ export default function CaseList({
                   href={`/case/${c.id}`}
                   className="block w-full px-3 py-2 rounded-lg bg-amber-accent text-slate-900 font-bold text-sm text-center active:scale-95 transition"
                 >
-                  {isSolved ? '✓ もう一度解く' : c.isFreePreview && !isPurchased ? '無料体験を開始' : '事件に挑む'}
+                  {isSolved ? '✓ もう一度解く' : '事件に挑む'}
                 </Link>
               )}
             </div>

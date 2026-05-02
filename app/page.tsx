@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import cases from '@/content/cases';
 import CaseList from '@/components/ui/CaseList';
 import { useDetectiveStore } from '@/lib/store';
+import { IS_FREE_MODE } from '@/lib/config';
 
 export default function HomePage() {
   const isPurchased = useDetectiveStore((s) => s.isPurchased);
@@ -61,18 +62,22 @@ export default function HomePage() {
               href="/case/case-01-buzz"
               className="px-6 py-3.5 rounded-xl bg-amber-accent text-slate-900 font-bold active:scale-95 transition shadow-lg shadow-amber-500/20"
             >
-              無料で第1の事件を体験
+              {IS_FREE_MODE ? '第1の事件を始める' : '無料で第1の事件を体験'}
             </Link>
-            <Link
-              href="/purchase"
-              className="px-6 py-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 font-semibold hover:bg-slate-700 active:scale-95 transition"
-            >
-              2,480円で全事件購入 →
-            </Link>
+            {!IS_FREE_MODE && (
+              <Link
+                href="/purchase"
+                className="px-6 py-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 font-semibold hover:bg-slate-700 active:scale-95 transition"
+              >
+                2,480円で全事件購入 →
+              </Link>
+            )}
           </motion.div>
 
           <p className="text-[11px] text-slate-500 mt-4">
-            買い切り / 永久アクセス / モバイル最適化 / 全{total}ケース完全網羅(数学I・A・B)
+            {IS_FREE_MODE
+              ? `モバイル最適化 / 全${total}ケース完全網羅(数学I・A・B)`
+              : `買い切り / 永久アクセス / モバイル最適化 / 全${total}ケース完全網羅(数学I・A・B)`}
           </p>
         </div>
       </section>
