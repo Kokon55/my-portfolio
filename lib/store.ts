@@ -24,6 +24,10 @@ type DetectiveState = {
   // 設定
   soundEnabled: boolean;
   toggleSound: () => void;
+  bgmVolume: number; // 0..1
+  seVolume: number;  // 0..1
+  setBgmVolume: (v: number) => void;
+  setSeVolume: (v: number) => void;
 };
 
 export const useDetectiveStore = create<DetectiveState>()(
@@ -55,6 +59,10 @@ export const useDetectiveStore = create<DetectiveState>()(
 
       soundEnabled: false,
       toggleSound: () => set((s) => ({ soundEnabled: !s.soundEnabled })),
+      bgmVolume: 0.5,
+      seVolume: 0.7,
+      setBgmVolume: (v) => set({ bgmVolume: Math.max(0, Math.min(1, v)) }),
+      setSeVolume: (v) => set({ seVolume: Math.max(0, Math.min(1, v)) }),
     }),
     {
       name: 'data-detective-progress',

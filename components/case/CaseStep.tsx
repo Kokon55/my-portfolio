@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
 import DialogueBox from '../characters/DialogueBox';
 import InteractionRenderer from '../interactions/InteractionRenderer';
+import { playSE } from '@/lib/se';
 import type { ActStep, ClientCharacter } from '@/content/cases/types';
 
 const BlockMath = dynamic(() => import('react-katex').then((m) => m.BlockMath), { ssr: false });
@@ -79,7 +80,10 @@ export default function CaseStep({ step, client, onComplete }: Props) {
                 {hintsList.map((_, i) => (
                   <button
                     key={i}
-                    onClick={() => setHintLevel(Math.max(hintLevel, i + 1))}
+                    onClick={() => {
+                      if (hintLevel <= i) playSE('hint_unlock');
+                      setHintLevel(Math.max(hintLevel, i + 1));
+                    }}
                     disabled={hintLevel > i}
                     className={`text-[11px] px-2.5 py-1 rounded-full border transition ${
                       hintLevel > i

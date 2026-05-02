@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { playSE } from '@/lib/se';
 
 type Props = {
   question: string;
@@ -49,7 +50,15 @@ export default function SliderEstimate({
       </div>
 
       <button
-        onClick={() => { setSubmitted(true); if (isCorrect && onCorrect) onCorrect(); }}
+        onClick={() => {
+          setSubmitted(true);
+          if (isCorrect) {
+            playSE('correct_chime');
+            onCorrect?.();
+          } else {
+            playSE('wrong_buzz');
+          }
+        }}
         className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-amber-accent to-yellow-600 text-slate-900 font-bold active:scale-95 transition"
       >
         この値で推理する

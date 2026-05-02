@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { playSE } from '@/lib/se';
 
 type Option = { label: string; isCorrect: boolean; feedback: string };
 type Props = {
@@ -15,7 +16,12 @@ export default function ChoiceQuestion({ question, options, onCorrect }: Props) 
 
   const select = (i: number) => {
     setSelected(i);
-    if (options[i].isCorrect && onCorrect) onCorrect();
+    if (options[i].isCorrect) {
+      playSE('correct_chime');
+      onCorrect?.();
+    } else {
+      playSE('wrong_buzz');
+    }
   };
 
   return (
