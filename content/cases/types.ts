@@ -1,10 +1,13 @@
 import type { DetectiveBadge } from '@/lib/store';
+import type { CharacterId, Expression } from '@/components/characters/PixelPortrait';
 
 export type ClientCharacter = {
   name: string;
   age: number;
   occupation: string;
-  // SVGアバターのパラメータ。ClientAvatar.tsx で描画
+  // ピクセルポートレートのキャラID
+  characterId: CharacterId;
+  // 旧 SVG アバターのフォールバック用
   avatar: {
     skin: string;
     hair: string;
@@ -12,6 +15,8 @@ export type ClientCharacter = {
     expression: 'worried' | 'distraught' | 'tired' | 'curious';
   };
   introLine: string;
+  // ケース一覧カードでのデフォルト表情
+  defaultExpression?: Expression;
 };
 
 export type InteractionConfig =
@@ -51,6 +56,22 @@ export type InteractionConfig =
       scenarios: { id: string; label: string; correctProbId: string }[];
       probabilities: { id: string; label: string }[];
       successFeedback: string;
+    }
+  | {
+      kind: 'math_sandbox';
+      task: string;
+      scenario:
+        | { kind: 'bot_engagement'; baseFollowers: number; baseLikes: number }
+        | { kind: 'binomial_shape'; nDefault: number; pDefault: number }
+        | { kind: 'law_of_large_numbers'; rate: number };
+    }
+  | {
+      kind: 'timeseries_anomaly';
+      question: string;
+      weeklyDeltas: number[];
+      trueAnomalyIndices: number[];
+      successFeedback: string;
+      partialFeedback: string;
     };
 
 export type InfluencerData = {
@@ -87,6 +108,10 @@ export type ActStep = {
   interaction?: InteractionConfig;
   hint?: string;
   formula?: string; // KaTeX
+  // 表情(セリフごとに切替)
+  expression?: Expression;
+  // ポーズ表示の有無(セリフ大型表示)
+  showPortrait?: boolean;
 };
 
 export type Act = {

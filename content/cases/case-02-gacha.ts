@@ -7,7 +7,9 @@ const gachaCase: Case = {
   client: {
     name: '佐藤',
     age: 32,
-    occupation: 'IT会社員(自称・廃課金者)',
+    occupation: 'ITエンジニア',
+    characterId: 'sato',
+    defaultExpression: 'tired',
     avatar: {
       skin: '#e9c8a8',
       hair: '#1a1a1a',
@@ -52,6 +54,8 @@ const gachaCase: Case = {
           id: 'c-02',
           type: 'dialogue',
           speaker: 'client',
+          expression: 'tired',
+          showPortrait: true,
           content:
             '探偵さん、聞いてください。あるソシャゲのガチャ、「SSR排出率 1%」って書いてあるんです。',
         },
@@ -59,6 +63,7 @@ const gachaCase: Case = {
           id: 'c-03',
           type: 'dialogue',
           speaker: 'client',
+          expression: 'distraught',
           content:
             'ぼく、100連回したんですよ。10万円。でも SSR ……ゼロ。1個も出ない。これって詐欺じゃないですか?',
         },
@@ -230,6 +235,35 @@ const gachaCase: Case = {
           },
         },
         {
+          id: 'i-05b',
+          type: 'interactive',
+          content:
+            '🧪 サンドボックス:n と p を自由に動かして「分布の形」がどう変わるか観察しよう。同じ期待値1でも形が違うことに気づくはず。',
+          interaction: {
+            kind: 'math_sandbox',
+            task: 'まず n=100, p=1% で分布を見る。次に n=200, p=0.5% にしても期待値は1のまま。だが分布の形は?',
+            scenario: {
+              kind: 'binomial_shape',
+              nDefault: 100,
+              pDefault: 0.01,
+            },
+          },
+        },
+        {
+          id: 'i-05c',
+          type: 'interactive',
+          content:
+            '🧪 サンドボックス:大数の法則を体感。試行回数を増やすと「ずれ」がどう減るか見て。',
+          interaction: {
+            kind: 'math_sandbox',
+            task: '試行回数を 100 → 1000 → 5000 と増やしてみる。同じ排出率1%でも、試行が少ないと結果は大きく揺れる。',
+            scenario: {
+              kind: 'law_of_large_numbers',
+              rate: 0.01,
+            },
+          },
+        },
+        {
           id: 'i-06',
           type: 'mini_lesson',
           speaker: 'detective',
@@ -395,8 +429,10 @@ const gachaCase: Case = {
           id: 'sol-08',
           type: 'dialogue',
           speaker: 'client',
+          expression: 'hopeful',
+          showPortrait: true,
           content:
-            '探偵さん…ありがとうございます。これで、また課金しそうになっても踏みとどまれます。',
+            '探偵さん…ありがとうございます。これで、また衝動的に行動しそうになっても、踏みとどまれます。',
         },
         {
           id: 'sol-09',

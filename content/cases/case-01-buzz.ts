@@ -38,6 +38,8 @@ const buzzCase: Case = {
     name: '山田',
     age: 27,
     occupation: '新人マーケター',
+    characterId: 'yamada',
+    defaultExpression: 'worried',
     avatar: {
       skin: '#f3d1b6',
       hair: '#3a2a1e',
@@ -81,6 +83,8 @@ const buzzCase: Case = {
           id: 'c-02',
           type: 'dialogue',
           speaker: 'client',
+          expression: 'distraught',
+          showPortrait: true,
           content:
             'すみません、探偵さん…うちの会社、インフルエンサーマーケに500万円使ったんです。',
         },
@@ -88,6 +92,7 @@ const buzzCase: Case = {
           id: 'c-03',
           type: 'dialogue',
           speaker: 'client',
+          expression: 'worried',
           content:
             'インフルエンサーAは「フォロワー10万人、いいね平均5000」、Bは「フォロワー3万人、いいね平均3000」。Aの方が良さそうだから契約したのに…結果は全然違って。',
         },
@@ -95,6 +100,7 @@ const buzzCase: Case = {
           id: 'c-04',
           type: 'dialogue',
           speaker: 'client',
+          expression: 'distraught',
           content:
             'PR投稿のいいねは、想定の1/5。フォロワーの数だけ見たら、桁違いの差なのに——何が間違ってたんでしょう?',
         },
@@ -351,6 +357,20 @@ const buzzCase: Case = {
             '【道具3:成長カーブの不自然さ】最後の道具だ。フォロワー成長の時系列を見る。bot を買ったアカウントは、不自然に直線的な伸びを示す。',
         },
         {
+          id: 'i-06b',
+          type: 'interactive',
+          content: '🧪 サンドボックス:bot 比率を動かして、エンゲージ率がどう壊れるか自分の手で確かめよう。',
+          interaction: {
+            kind: 'math_sandbox',
+            task: 'スライダーを動かして、bot 比率が 0% → 60% に上がると、真のエンゲージ率がどう変わるか体感する。フォロワー10万・いいね5000を起点に。',
+            scenario: {
+              kind: 'bot_engagement',
+              baseFollowers: 100000,
+              baseLikes: 5000,
+            },
+          },
+        },
+        {
           id: 'i-07',
           type: 'interactive',
           content: 'フォロワー数の月次推移を比較',
@@ -506,6 +526,8 @@ const buzzCase: Case = {
           id: 'sol-05',
           type: 'dialogue',
           speaker: 'client',
+          expression: 'shocked',
+          showPortrait: true,
           content:
             'そんな…じゃあ僕は、フォロワーの数字に騙されて、500万円を bot に投げたってことですか…',
         },

@@ -12,5 +12,6 @@ export async function generateStaticParams() {
   return [
     { caseId: 'case-01-buzz' },
     { caseId: 'case-02-gacha' },
+    { caseId: 'case-03-followers' },
   ];
 }

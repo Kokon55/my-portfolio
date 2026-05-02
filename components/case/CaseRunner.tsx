@@ -8,7 +8,9 @@ import CaseStep from './CaseStep';
 import ProgressBar from '../ui/ProgressBar';
 import { useDetectiveStore } from '@/lib/store';
 import { totalSteps } from '@/lib/progress';
+import { getBGM } from '@/lib/bgm';
 import type { Case } from '@/content/cases/types';
+import type { Mood } from '@/lib/bgm';
 
 const actLabel: Record<string, string> = {
   commission: '第1幕 / 依頼',
@@ -30,9 +32,12 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
   const router = useRouter();
   const setProgress = useDetectiveStore((s) => s.setProgress);
   const solveCase = useDetectiveStore((s) => s.solveCase);
+  const soundEnabled = useDetectiveStore((s) => s.soundEnabled);
+  const toggleSound = useDetectiveStore((s) => s.toggleSound);
 
   const [actIdx, setActIdx] = useState(0);
   const [stepIdx, setStepIdx] = useState(0);
+  const [bgmStarted, setBgmStarted] = useState(false);
 
   const act = caseDef.acts[actIdx];
   const step = act?.steps[stepIdx];
@@ -46,8 +51,31 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
     setProgress(caseDef.id, actIdx, stepIdx);
   }, [caseDef.id, actIdx, stepIdx, setProgress]);
 
+  // BGM: 幕の type に合わせて切り替え。ユーザーの最初の操作後に再生開始。
+  useEffect(() => {
+    if (!bgmStarted) return;
+    const bgm = getBGM();
+    bgm.setMuted(!soundEnabled);
+    if (soundEnabled && act) bgm.play(act.type as Mood);
+    return () => {
+      bgm.stop();
+    };
+  }, [act?.type, bgmStarted, soundEnabled]);
+
+  // ページ離脱で停止
+  useEffect(() => {
+    return () => {
+      getBGM().stop();
+    };
+  }, []);
+
   const goNext = () => {
     if (!act) return;
+    // ユーザーの最初の操作で BGM 起動許可(ブラウザの自動再生制限への対応)
+    if (!bgmStarted) {
+      setBgmStarted(true);
+      getBGM().resume();
+    }
     if (stepIdx + 1 < act.steps.length) {
       setStepIdx(stepIdx + 1);
     } else if (actIdx + 1 < caseDef.acts.length) {
@@ -56,6 +84,7 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
     } else {
       // 完走
       solveCase(caseDef.id, caseDef.badge, caseDef.acquiredSkills);
+      getBGM().stop();
       router.push(`/case/${caseDef.id}/result`);
     }
   };
@@ -83,11 +112,25 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
             <Link href="/" className="text-xs text-slate-400 hover:text-amber-accent">
               ← 事件簿に戻る
             </Link>
-            <span
-              className={`text-[10px] uppercase tracking-widest px-2 py-1 rounded ${actBadge[act.type]}`}
-            >
-              {actLabel[act.type]}
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  if (!bgmStarted) setBgmStarted(true);
+                  getBGM().resume();
+                  toggleSound();
+                }}
+                className="text-xs text-slate-400 hover:text-amber-accent px-2 py-1"
+                aria-label={soundEnabled ? 'BGMを止める' : 'BGMを再生'}
+                title={soundEnabled ? 'BGMをミュート' : 'BGMを再生'}
+              >
+                {soundEnabled ? '🔊' : '🔇'}
+              </button>
+              <span
+                className={`text-[10px] uppercase tracking-widest px-2 py-1 rounded ${actBadge[act.type]}`}
+              >
+                {actLabel[act.type]}
+              </span>
+            </div>
           </div>
           <ProgressBar
             current={progressCount}

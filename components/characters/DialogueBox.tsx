@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import ClientAvatar from './ClientAvatar';
+import PixelPortrait, { Expression } from './PixelPortrait';
 import type { ClientCharacter } from '@/content/cases/types';
 
 type Speaker = 'client' | 'narrator' | 'detective' | 'player';
@@ -11,7 +12,8 @@ type Props = {
   speaker?: Speaker;
   client?: ClientCharacter;
   text: string;
-  // タイプライター効果
+  expression?: Expression;
+  showLargePortrait?: boolean;
   typewriter?: boolean;
 };
 
@@ -33,6 +35,8 @@ export default function DialogueBox({
   speaker = 'narrator',
   client,
   text,
+  expression,
+  showLargePortrait = false,
   typewriter = true,
 }: Props) {
   const [displayed, setDisplayed] = useState(typewriter ? '' : text);
@@ -58,34 +62,73 @@ export default function DialogueBox({
     return () => clearInterval(id);
   }, [text, typewriter]);
 
+  const showsClient = speaker === 'client' && client;
+  const showsDetective = speaker === 'detective';
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
-      className={`relative rounded-2xl border-l-4 ${speakerColor[speaker]} bg-slate-900/70 backdrop-blur-sm p-4 sm:p-5 shadow-xl`}
-    >
-      <div className="flex items-start gap-3">
-        {speaker === 'client' && client && (
-          <div className="shrink-0">
-            <ClientAvatar client={client} size={56} speaking={!done} />
+    <div className="space-y-3">
+      {/* 大型ポートレート(showLargePortrait のとき) */}
+      {showLargePortrait && (showsClient || showsDetective) && (
+        <motion.div
+          key={`portrait-${expression}-${speaker}`}
+          initial={{ opacity: 0, scale: 0.9, y: 8 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex justify-center"
+        >
+          <div className="rounded-2xl overflow-hidden border-2 border-amber-accent/40 shadow-2xl shadow-amber-500/10">
+            <PixelPortrait
+              characterId={showsDetective ? 'detective' : client!.characterId}
+              expression={expression ?? (showsDetective ? 'thinking' : 'worried')}
+              size={240}
+            />
           </div>
-        )}
-        {speaker === 'detective' && (
-          <div className="shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-amber-accent to-yellow-700 flex items-center justify-center text-slate-900 font-bold text-lg font-detective">
-            探
+        </motion.div>
+      )}
+
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        className={`relative rounded-2xl border-l-4 ${speakerColor[speaker]} bg-slate-900/70 backdrop-blur-sm p-4 sm:p-5 shadow-xl`}
+      >
+        <div className="flex items-start gap-3">
+          {showsClient && !showLargePortrait && (
+            <div className="shrink-0 rounded-lg overflow-hidden border border-amber-accent/30">
+              <PixelPortrait
+                characterId={client!.characterId}
+                expression={expression ?? client!.defaultExpression ?? 'worried'}
+                size={64}
+              />
+            </div>
+          )}
+          {showsClient && !showLargePortrait && false && (
+            <div className="shrink-0">
+              <ClientAvatar client={client!} size={56} speaking={!done} />
+            </div>
+          )}
+          {showsDetective && !showLargePortrait && (
+            <div className="shrink-0 rounded-lg overflow-hidden border border-amber-accent/30">
+              <PixelPortrait
+                characterId="detective"
+                expression={expression ?? 'thinking'}
+                size={64}
+              />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <div className="text-xs uppercase tracking-widest text-amber-accent/80 mb-1">
+              {showsClient ? `${client!.name} (${client!.occupation})` : speakerLabel[speaker]}
+            </div>
+            <p className="dialog-text text-slate-100 whitespace-pre-line text-sm sm:text-base">
+              {displayed}
+              {!done && (
+                <span className="inline-block w-2 h-4 bg-amber-accent/70 ml-0.5 animate-pulse-slow align-middle" />
+              )}
+            </p>
           </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="text-xs uppercase tracking-widest text-amber-accent/80 mb-1">
-            {speaker === 'client' && client ? `${client.name} (${client.occupation})` : speakerLabel[speaker]}
-          </div>
-          <p className="dialog-text text-slate-100 whitespace-pre-line text-sm sm:text-base">
-            {displayed}
-            {!done && <span className="inline-block w-2 h-4 bg-amber-accent/70 ml-0.5 animate-pulse-slow align-middle" />}
-          </p>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }

@@ -24,6 +24,8 @@ export default function CaseStep({ step, client }: Props) {
           speaker={step.speaker ?? 'narrator'}
           client={client}
           text={step.content}
+          expression={step.expression}
+          showLargePortrait={step.showPortrait}
         />
       )}
 

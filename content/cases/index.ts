@@ -1,6 +1,7 @@
 import type { Case } from './types';
 import buzzCase from './case-01-buzz';
 import gachaCase from './case-02-gacha';
+import followerCase from './case-03-followers';
 
 // MVP 実装済み:ケース1, 2
 // 第2段階で追加予定:ケース3〜6 は Coming Soon
@@ -21,6 +22,7 @@ const comingSoon = (
     name: clientName,
     age: 30,
     occupation,
+    characterId: 'akari',
     avatar: { skin: '#e9c8a8', hair: '#2a2a2a', accent: '#1e3a8a', expression: 'curious' },
     introLine: '——',
   },
@@ -37,16 +39,7 @@ const comingSoon = (
 const cases: Case[] = [
   buzzCase,
   gachaCase,
-  comingSoon(
-    'case-03-followers',
-    'フォロワー買いました',
-    '偽アカウントの統計学',
-    '時系列分析・回帰',
-    3,
-    '突然フォロワーが10倍に。インフルエンサーの闇営業を、回帰分析と外れ値検出で暴け。',
-    '中村',
-    'PR代理店リサーチャー'
-  ),
+  followerCase,
   comingSoon(
     'case-04-reviews',
     '★4.8のアプリ',

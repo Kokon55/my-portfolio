@@ -14,6 +14,8 @@ import TrueScoreReveal from './TrueScoreReveal';
 import OutlierSpotter from './OutlierSpotter';
 import FormulaBuilder from './FormulaBuilder';
 import EvidenceMatcher from './EvidenceMatcher';
+import MathSandbox from './MathSandbox';
+import TimeSeriesAnomaly from './TimeSeriesAnomaly';
 
 export default function InteractionRenderer({
   interaction,
@@ -83,6 +85,18 @@ export default function InteractionRenderer({
           scenarios={interaction.scenarios}
           probabilities={interaction.probabilities}
           successFeedback={interaction.successFeedback}
+        />
+      );
+    case 'math_sandbox':
+      return <MathSandbox scenario={interaction.scenario} task={interaction.task} />;
+    case 'timeseries_anomaly':
+      return (
+        <TimeSeriesAnomaly
+          question={interaction.question}
+          weeklyDeltas={interaction.weeklyDeltas}
+          trueAnomalyIndices={interaction.trueAnomalyIndices}
+          successFeedback={interaction.successFeedback}
+          partialFeedback={interaction.partialFeedback}
         />
       );
     default:

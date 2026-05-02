@@ -1,55 +1,49 @@
-import PixelPortrait from '@/components/characters/PixelPortrait';
+import PixelPortrait, {
+  CharacterId,
+  Expression,
+} from '@/components/characters/PixelPortrait';
+
+const characters: { id: CharacterId; name: string }[] = [
+  { id: 'yamada', name: '山田(ケース1依頼人)' },
+  { id: 'sato', name: '佐藤(ケース2依頼人)' },
+  { id: 'akari', name: '灯里(ケース3依頼人)' },
+  { id: 'detective', name: 'データ探偵(あなた)' },
+];
+
+const expressions: Expression[] = [
+  'neutral',
+  'worried',
+  'distraught',
+  'shocked',
+  'eureka',
+  'hopeful',
+  'angry',
+  'tired',
+  'thinking',
+];
 
 export default function PortraitDemoPage() {
   return (
-    <main className="min-h-screen bg-slate-950 flex flex-col items-center gap-8 p-4 sm:p-8">
-      <h1 className="font-detective text-2xl sm:text-3xl text-amber-300 text-center">
-        山田さん v3 — 120×150 px / 40色 / 立体ライティング + 顔の非対称 + 肌テクスチャ
+    <main className="min-h-screen bg-slate-950 p-4 sm:p-8">
+      <h1 className="font-detective text-2xl sm:text-3xl text-amber-300 text-center mb-8">
+        キャラクター × 表情マトリクス
       </h1>
 
-      {/* 大画面 */}
-      <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl shadow-amber-500/10">
-        <PixelPortrait size={720} />
-      </div>
-
-      {/* サイズ違い比較 */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 items-end">
-        <div className="text-center">
-          <PixelPortrait size={120} />
-          <div className="text-xs text-slate-400 mt-1">120px</div>
-        </div>
-        <div className="text-center">
-          <PixelPortrait size={240} />
-          <div className="text-xs text-slate-400 mt-1">240px</div>
-        </div>
-        <div className="text-center">
-          <PixelPortrait size={400} />
-          <div className="text-xs text-slate-400 mt-1">400px</div>
-        </div>
-        <div className="text-center">
-          <PixelPortrait size={600} />
-          <div className="text-xs text-slate-400 mt-1">600px</div>
-        </div>
-      </div>
-
-      <div className="max-w-2xl text-sm text-slate-400 leading-relaxed">
-        <p className="mb-2"><b className="text-amber-accent">v3 で追加した実写要素:</b></p>
-        <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-1 list-disc list-inside text-xs">
-          <li>解像度 120×150 = 18,000 ピクセル(従来比 2.25 倍)</li>
-          <li>40色パレット(肌12段階、髪7段階)</li>
-          <li>顔の左右非対称(片目高め、眉非対称)</li>
-          <li>肌テクスチャノイズ(毛穴感)</li>
-          <li>額の心配しわ(横線2本)</li>
-          <li>カラスの足跡(目尻の小じわ)</li>
-          <li>鼻翼溝(法令線の薄い影)</li>
-          <li>5時のヒゲ(剃り残し)</li>
-          <li>右耳(髪の隙間から覗く)</li>
-          <li>唇のたて筋</li>
-          <li>白目の充血(疲労)</li>
-          <li>喉仏のはっきりした立体</li>
-          <li>襟のしわ・斜めストライプのネクタイ柄</li>
-        </ul>
-      </div>
+      {characters.map((c) => (
+        <section key={c.id} className="mb-12">
+          <h2 className="font-detective text-xl text-slate-100 mb-3">{c.name}</h2>
+          <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-3">
+            {expressions.map((exp) => (
+              <div key={exp} className="text-center">
+                <div className="rounded-lg overflow-hidden border border-slate-800">
+                  <PixelPortrait characterId={c.id} expression={exp} size={140} />
+                </div>
+                <div className="text-[10px] text-slate-400 mt-1">{exp}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
     </main>
   );
 }

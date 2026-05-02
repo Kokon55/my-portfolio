@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import ClientAvatar from '../characters/ClientAvatar';
+import PixelPortrait from '../characters/PixelPortrait';
 import type { Case } from '@/content/cases/types';
 
 const difficultyDots = (n: number) =>
@@ -48,8 +48,12 @@ export default function CaseList({
             )}
 
             <div className="flex items-start gap-3">
-              <div className="shrink-0">
-                <ClientAvatar client={c.client} size={64} />
+              <div className="shrink-0 rounded-lg overflow-hidden border border-amber-accent/20">
+                <PixelPortrait
+                  characterId={c.client.characterId}
+                  expression={c.client.defaultExpression ?? 'worried'}
+                  size={72}
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-[10px] text-slate-500 uppercase tracking-widest">
