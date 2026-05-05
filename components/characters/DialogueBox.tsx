@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import ClientAvatar from './ClientAvatar';
 import PixelPortrait, { Expression } from './PixelPortrait';
 import type { ClientCharacter } from '@/content/cases/types';
+import { useDetectiveStore, MESSAGE_SPEED_MS } from '@/lib/store';
 
 type Speaker = 'client' | 'narrator' | 'detective' | 'player';
 
@@ -39,11 +40,16 @@ export default function DialogueBox({
   showLargePortrait = false,
   typewriter = true,
 }: Props) {
-  const [displayed, setDisplayed] = useState(typewriter ? '' : text);
-  const [done, setDone] = useState(!typewriter);
+  const messageSpeed = useDetectiveStore((s) => s.messageSpeed);
+  const charDelayMs = MESSAGE_SPEED_MS[messageSpeed];
+  // instant(0ms) は typewriter を完全にスキップ
+  const useTypewriter = typewriter && charDelayMs > 0;
+
+  const [displayed, setDisplayed] = useState(useTypewriter ? '' : text);
+  const [done, setDone] = useState(!useTypewriter);
 
   useEffect(() => {
-    if (!typewriter) {
+    if (!useTypewriter) {
       setDisplayed(text);
       setDone(true);
       return;
@@ -51,7 +57,6 @@ export default function DialogueBox({
     setDisplayed('');
     setDone(false);
     let i = 0;
-    // 14ms / char(以前は 22ms)で約 1.6 倍速化
     const id = setInterval(() => {
       i++;
       setDisplayed(text.slice(0, i));
@@ -59,9 +64,9 @@ export default function DialogueBox({
         clearInterval(id);
         setDone(true);
       }
-    }, 14);
+    }, charDelayMs);
     return () => clearInterval(id);
-  }, [text, typewriter]);
+  }, [text, useTypewriter, charDelayMs]);
 
   // 吹き出しタップで残りを一気に表示
   const skipToEnd = () => {

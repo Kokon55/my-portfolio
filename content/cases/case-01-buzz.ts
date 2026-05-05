@@ -272,11 +272,27 @@ const buzzCase: Case = {
           content:
             '【道具1:エンゲージメント率】SNSの真の影響力は、フォロワー数ではなく「フォロワーのうち何%が反応したか」で測る。これを「率」または「比率」で考えるという。',
           formula: 'エンゲージ率 = \\frac{\\text{いいね数}}{\\text{フォロワー数}} \\times 100\\%',
+          formulaMeaning:
+            '「届いた人(=フォロワー)のうち、何%が実際に反応したか」を百分率で表したもの。フォロワー数が多くても、反応する人が少なければエンゲージ率は低い。',
+          formulaSymbols: [
+            { symbol: 'いいね数', meaning: '1投稿あたりのいいね数(平均)。SNSの「反応の量」を表す。' },
+            { symbol: 'フォロワー数', meaning: 'そのアカウントを購読している人の数。「届く可能性のある母数」。' },
+            { symbol: '× 100%', meaning: '率を百分率(パーセント)で表すための変換。'},
+          ],
         },
         {
           id: 'i-01b',
           type: 'interactive',
           content: '🛠 道具を組み立てよう。下のチップを上の枠にタップで配置して、エンゲージ率の式を完成させてくれ。',
+          reference: {
+            stats: [
+              { label: 'Aurora フォロワー', value: '100,000人', highlight: true },
+              { label: 'Aurora 平均いいね', value: '約 5,000', highlight: true },
+              { label: 'みなり フォロワー', value: '30,000人' },
+              { label: 'みなり 平均いいね', value: '約 3,000' },
+            ],
+            note: '組み立てるべきは「届いた人(分母)に対して、何人が反応したか(分子)」を表す式。',
+          },
           interaction: {
             kind: 'formula_builder',
             question: 'エンゲージメント率の正しい式を組み立ててください',
@@ -334,6 +350,16 @@ const buzzCase: Case = {
           content:
             '【道具2:分散と標準偏差】平均だけでなく「データのばらつき」も見る。バズ依存型かどうかを判別できる。記号で書くと σ(シグマ:標準偏差)、または σ²(シグマ二乗:分散)。',
           formula: 's^2 = \\frac{1}{n} \\sum_{i=1}^{n}(x_i - \\bar{x})^2',
+          formulaMeaning:
+            '「各データが平均からどれだけ離れているか」を二乗して全部足し、個数で割ったもの。値が大きいほど、データが平均から大きく散らばっていることを意味する。',
+          formulaSymbols: [
+            { symbol: 's²', meaning: '分散(variance)。ばらつきの大きさそのもの。これの平方根が標準偏差 σ。' },
+            { symbol: 'n', meaning: 'データの個数。今回は30投稿だから n = 30。' },
+            { symbol: 'Σ', meaning: 'シグマ。「i = 1 から n まで全部足す」を意味する総和記号。' },
+            { symbol: 'xᵢ', meaning: 'i 番目のデータの値。今回なら i 番目の投稿のいいね数。' },
+            { symbol: 'x̄', meaning: 'エックスバー。データ全体の平均値。' },
+            { symbol: '(xᵢ - x̄)²', meaning: '各データと平均との差を二乗したもの。マイナスを消し、大きく外れたデータを強調する。' },
+          ],
         },
         {
           id: 'i-04',
@@ -354,7 +380,17 @@ const buzzCase: Case = {
           type: 'mini_lesson',
           speaker: 'detective',
           content:
-            '【道具3:成長カーブの不自然さ】最後の道具だ。フォロワー成長の時系列を見る。bot を買ったアカウントは、不自然に直線的な伸びを示す。',
+            '【道具3:成長カーブの不自然さ】最後の道具だ。フォロワー成長の時系列を見る。bot を買ったアカウントは、不自然に直線的な伸びを示す。これを数値で測るのが「決定係数 R²」。直線にどれだけぴったり乗っているかを 0〜1 で表す。',
+          formula: 'R^2 = 1 - \\frac{\\sum_{i}(y_i - \\hat{y}_i)^2}{\\sum_{i}(y_i - \\bar{y})^2}',
+          formulaMeaning:
+            '「データが直線にどれだけ近いか」を 0〜1 で表す指標。1.0 は完璧な直線、0.0 はバラバラ。自然なフォロワー成長は通常 0.85 未満で揺らぎがあるが、bot 購入は不自然に 0.99 以上の直線になりやすい。',
+          formulaSymbols: [
+            { symbol: 'R²', meaning: '決定係数。回帰直線がデータをどれだけ説明できているか。1 に近いほど直線的。' },
+            { symbol: 'yᵢ', meaning: 'i 番目の実測値(その月のフォロワー数)。' },
+            { symbol: 'ŷᵢ', meaning: 'ワイハット。回帰直線が予測する i 番目の値(直線上の点)。' },
+            { symbol: 'ȳ', meaning: 'ワイバー。実測値の平均。' },
+            { symbol: 'Σ(yᵢ - ŷᵢ)²', meaning: '残差平方和。実測値と直線とのズレを二乗して合計したもの。' },
+          ],
         },
         {
           id: 'i-06b',
@@ -403,6 +439,14 @@ const buzzCase: Case = {
           type: 'interactive',
           content:
             '推理①:Aurora(フォロワー10万、平均いいね約5000)のエンゲージメント率は何%?',
+          reference: {
+            stats: [
+              { label: 'Aurora フォロワー', value: '100,000', highlight: true },
+              { label: 'Aurora 平均いいね', value: '約 5,000', highlight: true },
+            ],
+            formula: 'エンゲージ率 = \\frac{\\text{いいね数}}{\\text{フォロワー数}} \\times 100\\%',
+            note: '5,000 ÷ 100,000 × 100% を計算する。スライダーは 0〜20% の範囲。',
+          },
           interaction: {
             kind: 'slider_estimate',
             question: 'スライダーでエンゲージメント率を推測してください',
@@ -423,6 +467,14 @@ const buzzCase: Case = {
           type: 'interactive',
           content:
             '推理②:みなり(フォロワー3万、平均いいね3000)のエンゲージメント率は何%?',
+          reference: {
+            stats: [
+              { label: 'みなり フォロワー', value: '30,000', highlight: true },
+              { label: 'みなり 平均いいね', value: '約 3,000', highlight: true },
+            ],
+            formula: 'エンゲージ率 = \\frac{\\text{いいね数}}{\\text{フォロワー数}} \\times 100\\%',
+            note: '3,000 ÷ 30,000 × 100% を計算する。SNS業界では3%超で「優秀」とされる。',
+          },
           interaction: {
             kind: 'slider_estimate',
             question: 'スライダーでエンゲージメント率を推測してください',
@@ -443,6 +495,15 @@ const buzzCase: Case = {
           type: 'interactive',
           content:
             '推理③:Aurora のフォロワー成長は「不自然に直線的」だ。R²(決定係数)を直線フィッティングで測ると、いくつになる?',
+          reference: {
+            stats: [
+              { label: 'R² の範囲', value: '0.00 〜 1.00' },
+              { label: '完全直線', value: '1.00', highlight: true },
+              { label: '実在の自然成長', value: '0.7〜0.9 程度' },
+              { label: '判定基準', value: '0.99 超で「異常」', highlight: true },
+            ],
+            note: 'R² = 1 は「データが完璧に直線に乗っている」状態。実データはノイズで必ず0.99未満になる。',
+          },
           interaction: {
             kind: 'slider_estimate',
             question: '完全直線=1.00、ノイズが多い=0.5以下',
@@ -550,6 +611,15 @@ const buzzCase: Case = {
           type: 'interactive',
           content:
             '応用問題:「Vutube 登録者100万・平均再生5000」のチャンネルがある。エンゲージ率は?',
+          reference: {
+            stats: [
+              { label: '登録者数', value: '1,000,000', highlight: true },
+              { label: '平均再生数', value: '5,000', highlight: true },
+              { label: '健全な水準', value: '3〜10%' },
+            ],
+            formula: 'エンゲージ率 = \\frac{\\text{いいね数}}{\\text{フォロワー数}} \\times 100\\%',
+            note: '5,000 ÷ 1,000,000 × 100% を計算してみよう。',
+          },
           interaction: {
             kind: 'choice',
             question: '次のうち正しいのは?',
@@ -577,6 +647,18 @@ const buzzCase: Case = {
           id: 'sol-boss-01',
           type: 'interactive',
           content: '【ボス問題 1/3】Aurora の30投稿(平均約4837、最大20000、最小100)の標準偏差は?最も近い値を選んでください。',
+          reference: {
+            stats: [
+              { label: 'データ個数 n', value: '30' },
+              { label: '平均 x̄', value: '約 4,837', highlight: true },
+              { label: '最大値', value: '20,000' },
+              { label: '最小値', value: '100' },
+              { label: 'データ幅', value: '約 20,000' },
+              { label: '変動係数 σ/x̄', value: '約 1.0', highlight: true },
+            ],
+            formula: 's = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n}(x_i - \\bar{x})^2}',
+            note: '変動係数(σ÷平均)が約1.0の「バズ依存型」分布。σ ≈ 平均と同程度。',
+          },
           interaction: {
             kind: 'choice',
             question: 'この分布の標準偏差として妥当な値は?',

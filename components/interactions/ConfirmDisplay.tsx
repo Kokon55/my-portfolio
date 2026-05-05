@@ -23,15 +23,19 @@ export default function ConfirmDisplay({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" data-confirm-zone>
       {children}
       {!confirmed ? (
-        <button
+        <motion.button
           onClick={confirm}
-          className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-amber-accent to-yellow-600 text-slate-900 font-bold active:scale-95 transition shadow-lg shadow-amber-500/20"
+          initial={{ scale: 1 }}
+          animate={{ scale: [1, 1.03, 1] }}
+          transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
+          className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-amber-accent to-yellow-600 text-slate-900 font-bold active:scale-95 shadow-lg shadow-amber-500/30 ring-2 ring-amber-accent/60"
+          data-confirm-button
         >
-          ✓ {confirmLabel}
-        </button>
+          ✓ {confirmLabel}（タップで次へ進む）
+        </motion.button>
       ) : (
         <motion.div
           initial={{ opacity: 0, y: 4 }}

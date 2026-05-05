@@ -153,11 +153,30 @@ const gachaCase: Case = {
             '【道具1:二項分布】100連で k 個出る確率は、二項分布で計算できる。記号で書くとこうなる。',
           formula:
             'P(X = k) = \\binom{n}{k} p^k (1-p)^{n-k}',
+          formulaMeaning:
+            '「n 回中ちょうど k 回当たる確率」を計算する式。当たる確率 p、外れる確率 (1-p) を、当たり k 回・外れ (n-k) 回ぶん掛け合わせ、組み合わせの数 C(n,k) を掛ける。',
+          formulaSymbols: [
+            { symbol: 'P(X=k)', meaning: '「ちょうど k 個当たる確率」。X は当たった回数を表す確率変数。' },
+            { symbol: 'n', meaning: '試行回数。今回は100連だから n = 100。' },
+            { symbol: 'k', meaning: '当たった回数(知りたい個数)。「0個出る確率」なら k = 0。' },
+            { symbol: 'p', meaning: '1回あたりの当たり確率。今回は排出率1%だから p = 0.01。' },
+            { symbol: '(1-p)', meaning: '外れる確率。p = 0.01 なら 1-p = 0.99。' },
+            { symbol: 'C(n,k)', meaning: '「n 個から k 個を選ぶ組み合わせの数」。並び順は区別しない。例: C(100, 1) = 100。' },
+          ],
         },
         {
           id: 'i-01b',
           type: 'interactive',
           content: '🛠 「100連で 0個」の確率を、簡略式で組み立てよう。下のチップを正しい場所に配置せよ。',
+          reference: {
+            stats: [
+              { label: '排出率 p', value: '0.01' },
+              { label: '試行回数 n', value: '100' },
+              { label: '欲しい当たり数 k', value: '0' },
+            ],
+            formula: 'P(X = k) = \\binom{n}{k} p^k (1-p)^{n-k}',
+            note: 'k=0 の場合は p^0 = 1, C(n,0) = 1 になり、式は (1-p)^n に簡略化される。「外す確率を、n 回連続」と考える。',
+          },
           interaction: {
             kind: 'formula_builder',
             question: '「100回引いて、0回も出ない」確率の式は?',
@@ -269,6 +288,15 @@ const gachaCase: Case = {
           speaker: 'detective',
           content:
             '【道具3:大数の法則】試行回数 n を増やすと、出現率は理論値 p に収束する。100連では揺れるが、10000連回せば1%に近づく。だが、ここに「ギャンブラーの誤謬」が潜む。',
+          formula: '\\lim_{n \\to \\infty} \\frac{X_1 + X_2 + \\dots + X_n}{n} = E[X]',
+          formulaMeaning:
+            '「試行回数 n を限りなく大きくすると、平均値は理論的な期待値に収束する」という法則。逆に言えば、n が小さいうちは大きく揺れる。100連は「小さい n」の世界だ。',
+          formulaSymbols: [
+            { symbol: 'n', meaning: '試行回数。100連なら n = 100、10000連なら n = 10000。' },
+            { symbol: 'Xᵢ', meaning: 'i 回目の試行結果(当たり=1、外れ=0 など)。' },
+            { symbol: 'E[X]', meaning: '期待値。理論的な平均。排出率 1% のガチャなら 1 回あたりの期待値は 0.01。' },
+            { symbol: 'lim', meaning: '極限。「n を限りなく大きくしたとき」を意味する記号。' },
+          ],
         },
         {
           id: 'i-07',
@@ -298,6 +326,16 @@ const gachaCase: Case = {
           content:
             '推理①:排出率1%、100連で SSR が0個の確率は何%?',
           hint: '式は P(X=0) = (1-p)^n = (0.99)^100',
+          reference: {
+            stats: [
+              { label: '排出率 p', value: '0.01 (=1%)', highlight: true },
+              { label: '試行回数 n', value: '100' },
+              { label: '外れ確率 1-p', value: '0.99' },
+              { label: '期待値', value: '1個' },
+            ],
+            formula: 'P(X = 0) = (1 - p)^n',
+            note: '(0.99)^100 を電卓で計算してみよう。期待値=1でも0個になる人が一定数いる。',
+          },
           interaction: {
             kind: 'slider_estimate',
             question: 'スライダーで 0〜100% の範囲を推測',
@@ -319,6 +357,16 @@ const gachaCase: Case = {
           content:
             '推理②:排出率0.5%、100連で SSR が0個の確率は?',
           hint: '式は (0.995)^100。期待値は0.5個。',
+          reference: {
+            stats: [
+              { label: '排出率 p', value: '0.005 (=0.5%)', highlight: true },
+              { label: '試行回数 n', value: '100' },
+              { label: '外れ確率 1-p', value: '0.995' },
+              { label: '期待値', value: '0.5個' },
+            ],
+            formula: 'P(X = 0) = (1 - p)^n',
+            note: '(0.995)^100 を計算する。期待値0.5でも、過半数が「ゼロ個」になる。',
+          },
           interaction: {
             kind: 'slider_estimate',
             question: 'スライダーで推測',

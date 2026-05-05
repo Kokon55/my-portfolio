@@ -28,6 +28,26 @@ type DetectiveState = {
   seVolume: number;  // 0..1
   setBgmVolume: (v: number) => void;
   setSeVolume: (v: number) => void;
+  // メッセージ表示速度(タイプライター)
+  messageSpeed: MessageSpeed;
+  setMessageSpeed: (s: MessageSpeed) => void;
+};
+
+export type MessageSpeed = 'slow' | 'normal' | 'fast' | 'instant';
+
+// 1文字あたりの遅延(ms)。instant は 0 ms = 即時全文表示。
+export const MESSAGE_SPEED_MS: Record<MessageSpeed, number> = {
+  slow: 32,
+  normal: 18,
+  fast: 8,
+  instant: 0,
+};
+
+export const MESSAGE_SPEED_LABEL: Record<MessageSpeed, string> = {
+  slow: '遅い',
+  normal: '普通',
+  fast: '速い',
+  instant: '瞬時',
 };
 
 export const useDetectiveStore = create<DetectiveState>()(
@@ -63,6 +83,8 @@ export const useDetectiveStore = create<DetectiveState>()(
       seVolume: 0.7,
       setBgmVolume: (v) => set({ bgmVolume: Math.max(0, Math.min(1, v)) }),
       setSeVolume: (v) => set({ seVolume: Math.max(0, Math.min(1, v)) }),
+      messageSpeed: 'fast',
+      setMessageSpeed: (s) => set({ messageSpeed: s }),
     }),
     {
       name: 'data-detective-progress',

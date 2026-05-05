@@ -1,23 +1,24 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
 import DialogueBox from '../characters/DialogueBox';
 import InteractionRenderer from '../interactions/InteractionRenderer';
+import FormulaExplain from './FormulaExplain';
+import ReferencePanel from './ReferencePanel';
 import { playSE } from '@/lib/se';
 import type { ActStep, ClientCharacter } from '@/content/cases/types';
-
-const BlockMath = dynamic(() => import('react-katex').then((m) => m.BlockMath), { ssr: false });
 
 type Props = {
   step: ActStep;
   client: ClientCharacter;
   // インタラクション完了通知。CaseRunner が「次へ」解錠の判定に使う。
   onComplete?: () => void;
+  // 直近 mini_lesson の公式(参考データパネルのフォールバック表示用)
+  fallbackFormula?: { formula: string; meaning?: string } | null;
 };
 
-export default function CaseStep({ step, client, onComplete }: Props) {
+export default function CaseStep({ step, client, onComplete, fallbackFormula }: Props) {
   const [hintLevel, setHintLevel] = useState(0);
 
   // ステップが変わったらヒント開示状態をリセット
@@ -55,9 +56,11 @@ export default function CaseStep({ step, client, onComplete }: Props) {
           <div className="text-[11px] uppercase tracking-widest text-amber-accent mb-2">📖 道具を学ぶ</div>
           <p className="dialog-text text-slate-100 whitespace-pre-line text-sm sm:text-base">{step.content}</p>
           {step.formula && (
-            <div className="mt-3 p-3 bg-slate-950/70 rounded-lg overflow-x-auto">
-              <BlockMath math={step.formula} />
-            </div>
+            <FormulaExplain
+              formula={step.formula}
+              meaning={step.formulaMeaning}
+              symbols={step.formulaSymbols}
+            />
           )}
         </div>
       )}
@@ -69,7 +72,9 @@ export default function CaseStep({ step, client, onComplete }: Props) {
       )}
 
       {step.type === 'interactive' && step.interaction && (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 sm:p-5">
+        <>
+          <ReferencePanel data={step.reference} fallbackFormula={fallbackFormula} />
+          <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 sm:p-5">
           {step.content && <p className="text-sm text-slate-300 mb-3">{step.content}</p>}
           <InteractionRenderer interaction={step.interaction} onCorrect={onComplete} />
 
@@ -119,7 +124,8 @@ export default function CaseStep({ step, client, onComplete }: Props) {
               </AnimatePresence>
             </div>
           )}
-        </div>
+          </div>
+        </>
       )}
     </motion.div>
   );

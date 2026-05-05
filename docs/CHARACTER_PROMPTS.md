@@ -1,4 +1,10 @@
-# キャラクター画像生成プロンプト集(Gemini / Imagen 向け)
+> **⚠️ 非推奨 (DEPRECATED)** — このファイル(高品質ビジュアルノベル版)は**使いません**。
+> 採用版: [`docs/instructions/14b_CHARACTER_PROMPTS_PIXEL.md`](./instructions/14b_CHARACTER_PROMPTS_PIXEL.md) (ピクセルアート版)
+> 両方を混在するとキャラスタイルがバラバラになります。新規生成は必ず 14b を使用してください。
+
+---
+
+# キャラクター画像生成プロンプト集(Gemini / Imagen 向け) — 旧版
 
 このドキュメントは、本ゲームのキャラクター画像を Google Gemini(または Imagen)で
 生成する際の指示書です。生成画像は `public/characters/{characterId}/{expression}.png` に配置。

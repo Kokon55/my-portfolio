@@ -111,10 +111,25 @@ export type ActStep = {
   // 段階的ヒント(3段階)。Level1 が最も控えめ、Level3 が最もネタバレ寄り
   hints?: { level1: string; level2: string; level3: string };
   formula?: string; // KaTeX
+  // 数式の日本語1〜2行解説(mini_lesson の formula 直下に表示)
+  formulaMeaning?: string;
+  // 各記号の意味(? アイコン → ツールチップ)
+  formulaSymbols?: { symbol: string; meaning: string }[];
   // 表情(セリフごとに切替)
   expression?: Expression;
   // ポーズ表示の有無(セリフ大型表示)
   showPortrait?: boolean;
+  // インタラクティブステップで「📊 参考データ」パネルに表示する内容
+  reference?: ReferenceData;
+};
+
+export type ReferenceData = {
+  // 主要な数値(平均・標準偏差・n など)
+  stats?: { label: string; value: string; highlight?: boolean }[];
+  // 直近で出た公式(KaTeX)
+  formula?: string;
+  // 補足説明(1〜2行)
+  note?: string;
 };
 
 export type Act = {

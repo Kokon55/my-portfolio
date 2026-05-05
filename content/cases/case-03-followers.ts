@@ -156,6 +156,15 @@ const followerCase: Case = {
             '【道具1:移動平均】時系列データの「普段の流れ」を見るには、直近 N 週の平均を取る。一時的なノイズが消え、トレンドが見える。',
           formula:
             'MA_t = \\frac{1}{N}\\sum_{i=t-N+1}^{t} x_i',
+          formulaMeaning:
+            '「t 週時点での移動平均」=「直近 N 週ぶんのデータを平均したもの」。1週ぶんの一時的な揺れを吸収し、なだらかなトレンドを浮かび上がらせる。',
+          formulaSymbols: [
+            { symbol: 'MAₜ', meaning: 'Moving Average at t。「t 週時点までの直近 N 週」の平均値。' },
+            { symbol: 't', meaning: '今注目している週(時点)。' },
+            { symbol: 'N', meaning: 'ウィンドウ幅。何週ぶんを平均に含めるか。N=4 なら直近4週。' },
+            { symbol: 'Σ', meaning: 'シグマ。「i = t-N+1 から t まで全部足す」を意味する総和記号。' },
+            { symbol: 'xᵢ', meaning: 'i 週目の実測値(今回はその週のフォロワー増加数)。' },
+          ],
         },
         {
           id: 'i-02',
@@ -165,6 +174,15 @@ const followerCase: Case = {
             '【道具2:時系列の Z-score】各週の値が「移動平均からどれだけ標準偏差σ離れているか」を測る。|z| > 2 は通常の成長範囲を逸脱した「異常」と判定する。',
           formula:
             'z_t = \\frac{x_t - MA_t}{\\sigma_t}',
+          formulaMeaning:
+            '「t 週の実測値が、普段の流れ(移動平均)から、ばらつきの何倍ぶん離れているか」を表す数値。|z| が 2 を超えたら「めったに起こらない異常」と判定する基準。',
+          formulaSymbols: [
+            { symbol: 'zₜ', meaning: 'Z-score。t 週の値が「ばらつきの何σぶん」平均から離れているか。' },
+            { symbol: 'xₜ', meaning: 't 週の実測値(今回はその週のフォロワー増加数)。' },
+            { symbol: 'MAₜ', meaning: 'その週時点の移動平均(=普段の流れの基準値)。' },
+            { symbol: 'σₜ', meaning: 'シグマ。その時期のデータのばらつき(標準偏差)。' },
+            { symbol: '|z| > 2', meaning: '絶対値が2を超える=正規分布なら起こる確率が約5%以下の「異常」。' },
+          ],
         },
         {
           id: 'i-03',
@@ -250,6 +268,15 @@ const followerCase: Case = {
           type: 'interactive',
           content:
             '推理③:正常週(W1-W14、W19-W24)の平均増加数を眺めて、灯里さんの本来の成長ペースは月あたり何人?',
+          reference: {
+            stats: [
+              { label: '対象週', value: 'W1-W14, W19-W24', highlight: true },
+              { label: '対象週数', value: '20週' },
+              { label: '異常週(除外)', value: 'W15-W18' },
+              { label: '異常週合計増加', value: '約 +38,000' },
+            ],
+            note: '正常週の合計を20で割る。月換算なら週平均×4。健全な成長は週数百人程度。',
+          },
           interaction: {
             kind: 'slider_estimate',
             question: '正常週20週の平均は、約何人/週?',

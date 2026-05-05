@@ -1,10 +1,12 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 // 表情パラメータでキャラクターのポーズ・心情を切り替え可能なピクセルポートレート。
-// 後日 Gemini で生成した画像に差し替える際は、本コンポーネントを画像 <img> に
-// 置換するだけで済むよう、props 形状を「キャラID + 表情キー」に統一している。
+// 表示優先順位:
+//   1) public/characters/{characterId}/{expression}.png が存在すればそれを表示
+//   2) 失敗 (404 等) したらプロシージャル生成の SVG にフォールバック
+// これにより Gemini で生成した画像は1枚ずつ段階的に置換できる。
 
 export type CharacterId = 'yamada' | 'sato' | 'akari' | 'detective';
 export type Expression =
@@ -713,6 +715,13 @@ function buildGrid(charId: CharacterId, expression: Expression): string[][] {
   return g.map((row) => row.map((c) => PAL[c] ?? 'transparent'));
 }
 
+// 画像ファイルが存在する組み合わせをキャッシュ(同じ画像を毎回 fetch しないため)
+type ImgStatus = 'unknown' | 'available' | 'missing';
+const imageStatusCache = new Map<string, ImgStatus>();
+
+const imagePath = (characterId: CharacterId, expression: Expression) =>
+  `/characters/${characterId}/${expression}.png`;
+
 export default function PixelPortrait({
   characterId = 'yamada',
   expression = 'worried',
@@ -722,8 +731,48 @@ export default function PixelPortrait({
   expression?: Expression;
   size?: number;
 }) {
-  const grid = useMemo(() => buildGrid(characterId, expression), [characterId, expression]);
+  const path = imagePath(characterId, expression);
+  const cached = imageStatusCache.get(path) ?? 'unknown';
+  const [status, setStatus] = useState<ImgStatus>(cached);
 
+  useEffect(() => {
+    setStatus(imageStatusCache.get(path) ?? 'unknown');
+  }, [path]);
+
+  const grid = useMemo(
+    () => (status === 'missing' ? buildGrid(characterId, expression) : null),
+    [status, characterId, expression]
+  );
+
+  // 画像ファイルが利用可能 or 未確認(まだ試していない)→ <img> を試す
+  if (status !== 'missing') {
+    return (
+      <img
+        src={path}
+        width={size}
+        height={(size * H) / W}
+        alt={`${characterId} - ${expression}`}
+        loading="eager"
+        decoding="async"
+        style={{
+          imageRendering: 'pixelated',
+          display: 'block',
+          width: size,
+          height: (size * H) / W,
+        }}
+        onLoad={() => {
+          imageStatusCache.set(path, 'available');
+          if (status === 'unknown') setStatus('available');
+        }}
+        onError={() => {
+          imageStatusCache.set(path, 'missing');
+          setStatus('missing');
+        }}
+      />
+    );
+  }
+
+  // フォールバック: プロシージャル SVG
   return (
     <svg
       viewBox={`0 0 ${W} ${H}`}
@@ -733,7 +782,7 @@ export default function PixelPortrait({
       style={{ imageRendering: 'pixelated', display: 'block' }}
       aria-label={`${characterId} - ${expression}`}
     >
-      {grid.flatMap((row, y) =>
+      {grid?.flatMap((row, y) =>
         row.map((fill, x) => {
           if (!fill || fill === 'transparent') return null;
           return <rect key={`${x}-${y}`} x={x} y={y} width={1.02} height={1.02} fill={fill} />;

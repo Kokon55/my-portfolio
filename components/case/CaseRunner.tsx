@@ -1,16 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import CaseStep from './CaseStep';
 import ProgressBar from '../ui/ProgressBar';
-import { useDetectiveStore } from '@/lib/store';
+import { useDetectiveStore, MESSAGE_SPEED_LABEL, type MessageSpeed } from '@/lib/store';
 import { totalSteps } from '@/lib/progress';
 import { getBGM, resolveTrackForCase } from '@/lib/bgm';
 import { playSE, setSEMuted, setSEVolume } from '@/lib/se';
-import type { Case } from '@/content/cases/types';
+import type { Case, ActStep } from '@/content/cases/types';
 
 const actLabel: Record<string, string> = {
   commission: '第1幕 / 依頼',
@@ -38,15 +38,25 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
   const seVolume = useDetectiveStore((s) => s.seVolume);
   const setBgmVolume = useDetectiveStore((s) => s.setBgmVolume);
   const setSeVolumeStore = useDetectiveStore((s) => s.setSeVolume);
+  const messageSpeed = useDetectiveStore((s) => s.messageSpeed);
+  const setMessageSpeed = useDetectiveStore((s) => s.setMessageSpeed);
 
-  const [actIdx, setActIdx] = useState(0);
-  const [stepIdx, setStepIdx] = useState(0);
+  // 進行位置は actIdx と stepIdx を 1 つの state にまとめて、幕間遷移を原子的に行う。
+  // (旧実装は setActIdx/setStepIdx を別々に呼んでおり、レアケースで stepIdx だけ
+  // 先に反映されて step が undefined になり、画面が空になる事故が起きていた)
+  const [position, setPosition] = useState({ actIdx: 0, stepIdx: 0 });
+  const { actIdx, stepIdx } = position;
   const [bgmStarted, setBgmStarted] = useState(false);
   const [soundPanelOpen, setSoundPanelOpen] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
 
   const act = caseDef.acts[actIdx];
   const step = act?.steps[stepIdx];
+
+  // markStepComplete から最新の step を参照するための ref。
+  // (onCorrect コールバックが遅延実行された場合の stale closure を防ぐ)
+  const stepRef = useRef<ActStep | undefined>(step);
+  stepRef.current = step;
 
   let progressCount = 0;
   for (let a = 0; a < actIdx; a++) progressCount += caseDef.acts[a].steps.length;
@@ -55,15 +65,33 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
   const isCurrentInteractive = step?.type === 'interactive' && !!step?.interaction;
   const isStepUnlocked = !isCurrentInteractive || completedSteps.has(step?.id ?? '');
 
-  const markStepComplete = () => {
-    if (!step) return;
+  const markStepComplete = useCallback(() => {
+    const s = stepRef.current;
+    if (!s) return;
     setCompletedSteps((prev) => {
-      if (prev.has(step.id)) return prev;
+      if (prev.has(s.id)) return prev;
       const next = new Set(prev);
-      next.add(step.id);
+      next.add(s.id);
       return next;
     });
-  };
+  }, []);
+
+  // 直近で出てきた「公式付き mini_lesson」を遡って取得し、
+  // インタラクション画面の参考データパネルにフォールバック表示する。
+  const lastMiniLessonFormula = useMemo(() => {
+    for (let a = actIdx; a >= 0; a--) {
+      const acts = caseDef.acts[a];
+      if (!acts) continue;
+      const lastIdx = a === actIdx ? stepIdx - 1 : acts.steps.length - 1;
+      for (let s = lastIdx; s >= 0; s--) {
+        const st = acts.steps[s];
+        if (st?.type === 'mini_lesson' && st.formula) {
+          return { formula: st.formula, meaning: st.formulaMeaning };
+        }
+      }
+    }
+    return null;
+  }, [caseDef, actIdx, stepIdx]);
 
   useEffect(() => {
     setProgress(caseDef.id, actIdx, stepIdx);
@@ -99,19 +127,27 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
 
   const goNext = () => {
     if (!act) return;
-    if (!isStepUnlocked) return;
+    // 解錠されていない場合は、確認ボタンへスクロールしてユーザーに気付かせる
+    if (!isStepUnlocked) {
+      const target =
+        document.querySelector<HTMLElement>('[data-confirm-button]') ??
+        document.querySelector<HTMLElement>('[data-confirm-zone]');
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
     if (!bgmStarted) {
       setBgmStarted(true);
       getBGM().resume();
     }
     playSE('step_advance');
-    if (stepIdx + 1 < act.steps.length) {
-      setStepIdx(stepIdx + 1);
-    } else if (actIdx + 1 < caseDef.acts.length) {
+    const isLastInAct = stepIdx + 1 >= act.steps.length;
+    const isLastAct = actIdx + 1 >= caseDef.acts.length;
+    if (!isLastInAct) {
+      setPosition({ actIdx, stepIdx: stepIdx + 1 });
+    } else if (!isLastAct) {
       // 幕が変わるタイミングで章クリア音
       playSE('chapter_clear');
-      setActIdx(actIdx + 1);
-      setStepIdx(0);
+      setPosition({ actIdx: actIdx + 1, stepIdx: 0 });
     } else {
       // 最終ステップ → 事件解決
       playSE('case_solved');
@@ -126,11 +162,10 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
 
   const goBack = () => {
     if (stepIdx > 0) {
-      setStepIdx(stepIdx - 1);
+      setPosition({ actIdx, stepIdx: stepIdx - 1 });
     } else if (actIdx > 0) {
       const prevAct = caseDef.acts[actIdx - 1];
-      setActIdx(actIdx - 1);
-      setStepIdx(prevAct.steps.length - 1);
+      setPosition({ actIdx: actIdx - 1, stepIdx: prevAct.steps.length - 1 });
     }
   };
 
@@ -226,6 +261,27 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
                     className="w-full"
                   />
                 </div>
+                <div className="text-xs space-y-1 pt-1 border-t border-slate-700/60">
+                  <div className="text-slate-400">メッセージ速度</div>
+                  <div className="grid grid-cols-4 gap-1">
+                    {(['slow', 'normal', 'fast', 'instant'] as MessageSpeed[]).map((opt) => (
+                      <button
+                        key={opt}
+                        onClick={() => {
+                          setMessageSpeed(opt);
+                          playSE('button_click');
+                        }}
+                        className={`px-2 py-1 rounded text-[11px] font-bold transition ${
+                          messageSpeed === opt
+                            ? 'bg-amber-accent text-slate-900'
+                            : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        }`}
+                      >
+                        {MESSAGE_SPEED_LABEL[opt]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -239,6 +295,7 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
             step={step}
             client={caseDef.client}
             onComplete={markStepComplete}
+            fallbackFormula={lastMiniLessonFormula}
           />
         </AnimatePresence>
       </main>
@@ -254,15 +311,15 @@ export default function CaseRunner({ caseDef }: { caseDef: Case }) {
           </button>
           <button
             onClick={goNext}
-            disabled={!isStepUnlocked}
+            aria-disabled={!isStepUnlocked}
             className={`flex-1 px-4 py-3 rounded-xl font-bold transition ${
               isStepUnlocked
                 ? 'bg-gradient-to-r from-amber-accent to-yellow-600 text-slate-900 active:scale-95 shadow-lg shadow-amber-500/20'
-                : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
             }`}
           >
             {!isStepUnlocked
-              ? '⚠ 問題を解いてください'
+              ? '⬆ 上の問題を解いて確認してください'
               : isLastStep
               ? '🏆 事件を解決する'
               : '次へ →'}
